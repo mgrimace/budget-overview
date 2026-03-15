@@ -16,7 +16,12 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
   const [itemType, setItemType] = useState<'income' | 'expense'>(item?.item_type ?? 'expense');
   const [frequency, setFrequency] = useState(item?.frequency ?? 'monthly');
   const [dayOfMonth, setDayOfMonth] = useState<number | ''>(item?.day_of_month ?? '');
-  const [selectedTags, setSelectedTags] = useState<string[]>(item?.tags ?? []);
+  // Add default 'Income' tag for salary/freelance if creating new income item
+  const defaultIncomeTags = ['salary', 'freelance', 'contract', 'consulting'];
+  const isNewIncome = !item && itemType === 'income';
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    item?.tags ?? (isNewIncome ? ['Income'] : [])
+  );
   const [notes, setNotes] = useState(item?.notes ?? '');
   const [isVariable, setIsVariable] = useState(!!item?.variable_amounts?.length);
   const [variableAmounts, setVariableAmounts] = useState<number[]>(
@@ -35,13 +40,24 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let tagsToSave = selectedTags;
+    // If new income and no tags, add 'Income' tag by default
+    if (isNewIncome && tagsToSave.length === 0) {
+      tagsToSave = ['Income'];
+    }
+    // If new income and tag matches default income sources, add 'Income' tag
+    if (isNewIncome && !tagsToSave.includes('Income')) {
+      if (defaultIncomeTags.some((t) => name.toLowerCase().includes(t))) {
+        tagsToSave = [...tagsToSave, 'Income'];
+      }
+    }
     const data: CreateBudgetItem = {
       name,
       amount: isVariable ? 0 : amount,
       item_type: itemType,
       frequency: isVariable ? 'monthly' : frequency,
       day_of_month: dayOfMonth === '' ? undefined : dayOfMonth,
-      tags: selectedTags.length > 0 ? selectedTags : undefined,
+      tags: tagsToSave.length > 0 ? tagsToSave : undefined,
       notes: notes || undefined,
       variable_amounts: isVariable
         ? variableAmounts
