@@ -1,0 +1,46 @@
+export interface BudgetItem {
+  id: number;
+  name: string;
+  amount: number;
+  item_type: 'income' | 'expense';
+  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
+  day_of_month?: number;
+  tags: string[];
+  notes?: string;
+  variable_amounts?: VariableAmount[];
+  monthly_amount: number;
+  created_at: string;
+}
+
+export interface CreateBudgetItem {
+  name: string;
+  amount: number;
+  item_type: 'income' | 'expense';
+  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
+  day_of_month?: number;
+  tags?: string[];
+  notes?: string;
+  variable_amounts?: VariableAmount[];
+}
+
+export interface VariableAmount {
+  month: number;
+  amount: number;
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+}
+
+export interface SankeyData {
+  nodes: { id: string }[];
+  links: { source: string; target: string; value: number }[];
+}
+
+export interface UpcomingBill {
+  name: string;
+  amount: number;
+  day_of_month: number;
+  tags: string[];
+}
