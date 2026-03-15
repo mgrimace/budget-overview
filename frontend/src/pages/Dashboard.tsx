@@ -12,18 +12,20 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-main">
-        <h1>Monthly Cash Flow</h1>
-        {data && data.nodes.length > 0 ? (
-          <CashflowDiagram data={data} />
-        ) : (
-          <div className="empty-state">
-            <p>No budget items yet. Add income and expenses to see your cash flow.</p>
-          </div>
-        )}
+    <>
+      <h1 style={{ marginBottom: 24 }}>Monthly Cash Flow</h1>
+      <div className="dashboard">
+        <div className="dashboard-main">
+          {data && data.nodes.length > 0 ? (
+            <CashflowDiagram data={data} />
+          ) : (
+            <div className="empty-state">
+              <p>No budget items yet. Add income and expenses to see your cash flow.</p>
+            </div>
+          )}
+        </div>
+        <UpcomingBillsSidebar />
       </div>
-      <UpcomingBillsSidebar />
-    </div>
+    </>
   );
 }

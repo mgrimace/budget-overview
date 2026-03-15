@@ -143,12 +143,24 @@ body {
 }
 
 /* Sidebar */
+
 .sidebar {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 24px;
   height: fit-content;
+}
+
+@media (min-width: 769px) {
+  .dashboard {
+    align-items: flex-start;
+  }
+  .sidebar {
+    min-height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
 }
 
 .sidebar h2 {

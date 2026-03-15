@@ -38,6 +38,15 @@ export default function Summary() {
       expenseByTag[tag] = (expenseByTag[tag] ?? 0) + item.monthly_amount * multiplier;
     });
 
+  // Income by Category
+  const incomeByTag: Record<string, number> = {};
+  filtered
+    .filter((i) => i.item_type === 'income')
+    .forEach((item) => {
+      const tag = item.tags[0] ?? 'Other';
+      incomeByTag[tag] = (incomeByTag[tag] ?? 0) + item.monthly_amount * multiplier;
+    });
+
   const toggleTag = (name: string) => {
     setSelectedTags((prev) =>
       prev.includes(name) ? prev.filter((t) => t !== name) : [...prev, name],
@@ -105,6 +114,24 @@ export default function Summary() {
                 />
               </div>
               <span className="category-amount">${amount.toFixed(2)}</span>
+            </div>
+          ))}
+      </div>
+
+      <h2>Income by Category</h2>
+      <div className="category-breakdown">
+        {Object.entries(incomeByTag)
+          .sort(([, a], [, b]) => b - a)
+          .map(([tag, amount]) => (
+            <div key={tag} className="category-row">
+              <span className="category-name">{tag}</span>
+              <div className="category-bar">
+                <div
+                  className="category-fill"
+                  style={{ background: 'var(--color-income)', width: `${income > 0 ? (amount / income) * 100 : 0}%` }}
+                />
+              </div>
+              <span className="category-amount" style={{ color: 'var(--color-income)' }}>${amount.toFixed(2)}</span>
             </div>
           ))}
       </div>
