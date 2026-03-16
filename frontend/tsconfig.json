@@ -14,7 +14,8 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["react", "react-dom"]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
