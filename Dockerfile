@@ -1,5 +1,5 @@
 # Stage 1: Build backend
-FROM rust:1.77-slim AS backend-builder
+FROM rust:1.80-slim AS backend-builder
 WORKDIR /build
 COPY backend/Cargo.toml backend/Cargo.lock* ./
 RUN mkdir src && echo 'fn main(){}' > src/main.rs && cargo build --release 2>/dev/null || true && rm -rf src
