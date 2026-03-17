@@ -43,4 +43,5 @@ INSERT OR IGNORE INTO tags (name) VALUES
     ('Travel'),
     ('Subscriptions'),
     ('Loans'),
-    ('Misc');
+    ('Income'),
+    ('Savings');
