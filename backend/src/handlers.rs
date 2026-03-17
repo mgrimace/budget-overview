@@ -8,6 +8,8 @@ use std::collections::{HashMap, HashSet};
 use crate::db::Db;
 use crate::models::*;
 
+type BudgetItemRow = (i64, String, f64, String, String, Option<i32>, Option<String>, String);
+
 // --- Normalization ---
 
 fn normalize_to_monthly(amount: f64, frequency: &str) -> f64 {
@@ -60,6 +62,7 @@ fn get_variable_amounts(conn: &rusqlite::Connection, item_id: i64) -> Vec<Variab
         .unwrap_or_default()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn build_budget_item(
     conn: &rusqlite::Connection,
     id: i64,
@@ -145,8 +148,7 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
         )
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let items: Vec<(i64, String, f64, String, String, Option<i32>, Option<String>, String)> =
-        stmt.query_map([], |row| {
+    let items: Vec<BudgetItemRow> = stmt.query_map([], |row| {
             Ok((
                 row.get::<_, i64>(0)?,
                 row.get::<_, String>(1)?,
@@ -228,8 +230,8 @@ pub async fn get_budget_item(
 ) -> Result<Json<BudgetItem>, StatusCode> {
     let db = db.lock().await;
 
-    let row = db
-        .query_row(
+    let (id, name, amount, item_type, frequency, day_of_month, notes, created_at): BudgetItemRow =
+        db.query_row(
             "SELECT id, name, amount, item_type, frequency, day_of_month, notes, created_at \
              FROM budget_items WHERE id = ?1",
             [id],
@@ -248,7 +250,6 @@ pub async fn get_budget_item(
         )
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    let (id, name, amount, item_type, frequency, day_of_month, notes, created_at) = row;
     Ok(Json(build_budget_item(
         &db,
         id,
@@ -289,12 +290,10 @@ pub async fn update_budget_item(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    // Replace tags
     db.execute("DELETE FROM budget_item_tags WHERE budget_item_id = ?1", [id])
         .ok();
     save_tags(&db, id, &input.tags);
 
-    // Replace variable amounts
     db.execute("DELETE FROM variable_amounts WHERE budget_item_id = ?1", [id])
         .ok();
     save_variable_amounts(&db, id, &input.variable_amounts);
