@@ -13,7 +13,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <h1 style={{ marginBottom: 24 }}>Monthly Budget</h1>
+      <h1 className="dashboard-title">Monthly Budget</h1>
       <div className="dashboard">
         <div className="dashboard-main">
           {data && data.nodes.length > 0 ? (
