@@ -447,14 +447,12 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
         }));
     }
 
-    // Add Cash Flow node
     if node_ids.insert("Budget".to_string()) {
         nodes.push(SankeyNode {
             id: "Budget".to_string(),
         });
     }
 
-    // Add expense category nodes and links
     let mut expense_total = 0.0;
     for (tag, amount) in &expense_by_tag {
         if node_ids.insert(tag.clone()) {
@@ -468,23 +466,18 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
         expense_total += amount;
     }
 
-    // Surplus or Deficit
     let diff = income_total - expense_total;
     if diff > 0.0 {
-        nodes.push(SankeyNode {
-            id: "Remaining".to_string(),
-        });
+        nodes.push(SankeyNode { id: "Remaining".to_string() });
         links.push(SankeyLink {
             source: "Budget".to_string(),
             target: "Remaining".to_string(),
             value: diff,
         });
     } else if diff < 0.0 {
-        nodes.push(SankeyNode {
-            id: "Deficit".to_string(),
-        });
+        nodes.push(SankeyNode { id: "Deficit".to_string() });
         links.push(SankeyLink {
-            source: "Cash Flow".to_string(),
+            source: "Budget".to_string(),
             target: "Deficit".to_string(),
             value: diff.abs(),
         });
