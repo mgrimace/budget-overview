@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchTags, createTag, renameTag, deleteTag } from '../api';
 import type { Tag } from '../types';
-import { Plus, Trash, PencilSimple, Check, X } from '@phosphor-icons/react';
+import { PlusIcon, TrashIcon, PencilSimpleIcon, CheckIcon, XIcon } from '@phosphor-icons/react';
 
 export default function Tags() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -46,7 +46,7 @@ export default function Tags() {
           onChange={(e) => setNewTagName(e.target.value)}
         />
         <button type="submit" className="btn btn-primary">
-          <Plus size={20} /> Add
+          <PlusIcon size={20} /> Add
         </button>
       </form>
 
@@ -62,10 +62,10 @@ export default function Tags() {
                   autoFocus
                 />
                 <button className="btn-icon" onClick={() => handleRename(tag.id)}>
-                  <Check size={18} />
+                  <CheckIcon size={18} />
                 </button>
                 <button className="btn-icon" onClick={() => setEditingId(null)}>
-                  <X size={18} />
+                  <XIcon size={18} />
                 </button>
               </>
             ) : (
@@ -78,10 +78,10 @@ export default function Tags() {
                     setEditName(tag.name);
                   }}
                 >
-                  <PencilSimple size={18} />
+                  <PencilSimpleIcon size={18} />
                 </button>
                 <button className="btn-icon danger" onClick={() => handleDelete(tag.id)}>
-                  <Trash size={18} />
+                  <TrashIcon size={18} />
                 </button>
               </>
             )}

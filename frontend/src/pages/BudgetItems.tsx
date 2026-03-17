@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchBudgetItems, deleteBudgetItem } from '../api';
 import type { BudgetItem } from '../types';
 import BudgetItemForm from '../components/BudgetItemForm';
-import { Plus, Trash, PencilSimple } from '@phosphor-icons/react';
+import { PlusIcon, TrashIcon, PencilSimpleIcon } from '@phosphor-icons/react';
 
 export default function BudgetItems() {
   const [items, setItems] = useState<BudgetItem[]>([]);
@@ -30,7 +30,7 @@ export default function BudgetItems() {
             setShowForm(true);
           }}
         >
-          <Plus size={20} /> Add Item
+          <PlusIcon size={20} /> Add Item
         </button>
       </div>
 
@@ -80,10 +80,10 @@ export default function BudgetItems() {
                   setShowForm(true);
                 }}
               >
-                <PencilSimple size={18} />
+                <PencilSimpleIcon size={18} />
               </button>
               <button className="btn-icon danger" onClick={() => handleDelete(item.id)}>
-                <Trash size={18} />
+                <TrashIcon size={18} />
               </button>
             </div>
           </div>

@@ -4,11 +4,6 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - app-data:/app/data
+      - ./data:/app/data
     environment:
       DATABASE_PATH: /app/data/budget.db
-      STATIC_DIR: /app/static
-      PORT: "3001"
-
-volumes:
-  app-data:
