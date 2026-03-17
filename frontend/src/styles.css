@@ -18,9 +18,11 @@
   --color-expense: #ef4444;
   --color-surplus: #22c55e;
   --color-deficit: #ef4444;
+  --color-node-deficit: #ef4444;
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
   --color-primary-light: #eef2ff;
+  --color-remaining: #22c55e;
   --radius: 12px;
   --radius-sm: 8px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -38,9 +40,11 @@
   --color-expense: #f87171;
   --color-surplus: #4ade80;
   --color-deficit: #f87171;
+  --color-node-deficit: #f87171;
   --color-primary: #818cf8;
   --color-primary-hover: #6366f1;
   --color-primary-light: #1e1b4b;
+  --color-remaining: #4ade80;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
