@@ -6,26 +6,12 @@ interface Props {
   data: SankeyData;
 }
 
-const SankeyTooltip = ({ link }: { link: any }) => {
-  return (
-    <div
-      style={{
-        background: 'var(--color-surface)',
-        color: 'var(--color-text)',
-        border: '1px solid var(--color-border)',
-        padding: '8px 10px',
-        borderRadius: '6px',
-        fontSize: '14px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-      }}
-    >
-      <strong>{link.source.label} → {link.target.label}</strong>
-      <div style={{ color: 'var(--color-text-secondary)' }}>
-        ${link.value.toLocaleString()}
-      </div>
-    </div>
-  );
-};
+const SankeyTooltip = ({ link }: { link: any }) => (
+  <div className="sankey-tooltip">
+    <strong>{link.source.label} → {link.target.label}</strong>
+    <div className="sankey-tooltip-value">${link.value.toLocaleString()}</div>
+  </div>
+);
 
 const nivoTheme = {
   text: {
