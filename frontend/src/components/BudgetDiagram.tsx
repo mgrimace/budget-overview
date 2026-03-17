@@ -1,8 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { ResponsiveSankey } from '@nivo/sankey';
 import type { SankeyData } from '../types';
-
 
 interface Props {
   data: SankeyData;
@@ -22,7 +20,7 @@ const SankeyTooltip = ({ link }: { link: any }) => {
       }}
     >
       <strong>{link.source.label} → {link.target.label}</strong>
-      <div style={{ color: 'var(--color-muted)' }}>
+      <div style={{ color: 'var(--color-text-secondary)' }}>
         ${link.value.toLocaleString()}
       </div>
     </div>
@@ -43,7 +41,7 @@ const nivoTheme = {
   },
 };
 
-export default function CashflowDiagram({ data }: Props) {
+export default function BudgetDiagram({ data }: Props) {
   const [themeKey, setThemeKey] = useState(0);
 
   useEffect(() => {

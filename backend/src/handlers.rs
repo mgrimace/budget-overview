@@ -429,7 +429,7 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
             }
             links.push(SankeyLink {
                 source: name.clone(),
-                target: "Cash Flow".to_string(),
+                target: "Budget".to_string(),
                 value: monthly,
             });
             income_total += monthly;
@@ -448,9 +448,9 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
     }
 
     // Add Cash Flow node
-    if node_ids.insert("Cash Flow".to_string()) {
+    if node_ids.insert("Budget".to_string()) {
         nodes.push(SankeyNode {
-            id: "Cash Flow".to_string(),
+            id: "Budget".to_string(),
         });
     }
 
@@ -461,7 +461,7 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
             nodes.push(SankeyNode { id: tag.clone() });
         }
         links.push(SankeyLink {
-            source: "Cash Flow".to_string(),
+            source: "Budget".to_string(),
             target: tag.clone(),
             value: *amount,
         });
@@ -472,11 +472,11 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
     let diff = income_total - expense_total;
     if diff > 0.0 {
         nodes.push(SankeyNode {
-            id: "Surplus".to_string(),
+            id: "Remaining".to_string(),
         });
         links.push(SankeyLink {
-            source: "Cash Flow".to_string(),
-            target: "Surplus".to_string(),
+            source: "Budget".to_string(),
+            target: "Remaining".to_string(),
             value: diff,
         });
     } else if diff < 0.0 {
