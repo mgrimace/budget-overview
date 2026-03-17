@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
-import { House, ListBullets, ChartBar, Tag } from '@phosphor-icons/react';
+import { HouseIcon, ListBulletsIcon, ChartBarIcon, TagIcon } from '@phosphor-icons/react';
 import Dashboard from './pages/Dashboard';
 import BudgetItems from './pages/BudgetItems';
 import Summary from './pages/Summary';
@@ -14,16 +14,16 @@ export default function App() {
           <div className="nav-brand">Budget Overview</div>
           <div className="nav-links">
             <NavLink to="/" end>
-              <House size={20} /> Dashboard
+              <HouseIcon size={20} /> Dashboard
             </NavLink>
             <NavLink to="/items">
-              <ListBullets size={20} /> Items
+              <ListBulletsIcon size={20} /> Items
             </NavLink>
             <NavLink to="/summary">
-              <ChartBar size={20} /> Summary
+              <ChartBarIcon size={20} /> Summary
             </NavLink>
             <NavLink to="/tags">
-              <Tag size={20} /> Tags
+              <TagIcon size={20} /> Tags
             </NavLink>
           </div>
           <ThemeToggle />

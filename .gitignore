@@ -6,3 +6,5 @@ target/
 *.db-wal
 data/
 .env
+# Ignore local build database data directory
+data/
