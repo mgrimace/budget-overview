@@ -165,9 +165,17 @@ body {
 }
 
 .nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--font-xl);
   font-weight: 700;
   white-space: nowrap;
+}
+
+.nav-brand img {
+  height: var(--font-3xl);
+  width: auto;
 }
 
 .nav-links {

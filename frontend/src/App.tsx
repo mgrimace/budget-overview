@@ -11,7 +11,10 @@ export default function App() {
     <BrowserRouter>
       <div className="app">
         <nav className="nav">
-          <div className="nav-brand">Budget Overview</div>
+          <div className="nav-brand">
+            <img src="/icon-192.png" alt="" aria-hidden="true" />
+            Budget Overview
+          </div>
           <div className="nav-links">
             <NavLink to="/" end>
               <HouseIcon size={20} /> Dashboard
