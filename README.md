@@ -1,3 +1,7 @@
+<div align="center" width="100%">
+  <img src="./frontend/public/icons/icon-512.svg" width="128" alt="Budget Overview icon" />
+</div>
+
 # Budget Overview
 
 I made this to replace my family's Excel spreadsheet. It's a simple monthly budget planner with a clean visual overview of money in and out, and what's left or in deficit afterwards.
