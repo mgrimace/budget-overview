@@ -6,6 +6,9 @@
 
 I made this to replace my family's Excel spreadsheet. It's a simple monthly budget planner with a clear visual overview of money in and money out, and what's left (or in deficit) afterwards.
 
+> [!NOTE]
+> This is still very much a work-in-progress
+
 ## Screenshot
 
 | Light mode | Dark mode |
@@ -19,12 +22,18 @@ I made this to replace my family's Excel spreadsheet. It's a simple monthly budg
 - **Variable amounts** — month-by-month overrides for things that change, like utilities
 - **Tags and reports** — tag items and filter the summary view, handy for things like home office expenses at tax time
 - **Upcoming bills** — sidebar showing what's due this month in date order
+- **Self-hosted** — Run it yourself, your financial data is yours
 - **Dark mode** — full light and dark theme
 - **PWA** — installable on desktop and mobile, works offline
+
+> [!NOTE]
+> Built with WCAG 2.2 AA accessibility in mind, though there's still work to do.
 
 ## What it's not
 
 It's not a transaction tracker or accounting software. No bank sync, no receipt scanning, no daily logging. It's for setting up your monthly budget picture and understanding it visually.
+
+The project is intentionally simple, and it is not designed for enterprise use.
 
 ## Tech Stack
 
