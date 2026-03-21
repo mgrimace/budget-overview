@@ -50,8 +50,8 @@ Create a `docker-compose.yml`:
 ```yaml
 services:
   app:
-    container_name: budget-overview-app
-    image: ghcr.io/mgrimace/budget-overview-app:latest
+    container_name: budget-overview
+    image: ghcr.io/mgrimace/budget-overview:latest
     ports:
       - "3001:3001"
     volumes:

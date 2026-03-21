@@ -1,9 +1,12 @@
 services:
   app:
     build: .
+    container_name: budget-overview
+    image: ghcr.io/mgrimace/budget-overview:latest
     ports:
       - "3001:3001"
     volumes:
       - ./data:/app/data
     environment:
       DATABASE_PATH: /app/data/budget.db
+    restart: unless-stopped
