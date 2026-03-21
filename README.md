@@ -1,5 +1,5 @@
 <div align="center" width="100%">
-  <img src="./frontend/public/icons/icon-512.svg" width="128" alt="Budget Overview icon" />
+  <img src="./frontend/public/icon-512.png" width="128" alt="Budget Overview icon" />
 </div>
 
 # Budget Overview
