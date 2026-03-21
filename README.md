@@ -27,7 +27,7 @@ I made this to replace my family's Excel spreadsheet. It's a simple monthly budg
 - **PWA** — installable on desktop and mobile, works offline
 
 > [!NOTE]
-> Built with WCAG 2.2 AA accessibility in mind, though there's still work to do.
+> I built this with WCAG 2.2 AA in mind, though there's still plenty of work to do for accessibility.
 
 ## What it's not
 
