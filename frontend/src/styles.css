@@ -796,6 +796,119 @@ body {
 }
 
 /* ============================================================
+   THEME SELECTOR
+   ============================================================ */
+
+.theme-selector {
+  position: relative;
+}
+
+.theme-selector-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.theme-selector-trigger:hover {
+  background: var(--color-canvas);
+}
+
+.theme-selector-label {
+  white-space: nowrap;
+}
+
+.theme-selector-caret {
+  width: 12px;
+  height: 12px;
+  color: var(--color-text-muted);
+}
+
+.theme-selector-menu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  min-width: 180px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  padding: var(--space-1) 0;
+  z-index: 200;
+}
+
+.theme-selector-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+  text-align: left;
+}
+
+.theme-selector-option:hover,
+.theme-selector-option.is-active {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+}
+
+.theme-selector-option-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.theme-selector-option-check {
+  width: 14px;
+  height: 14px;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.theme-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.theme-preview-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--preview-border, var(--color-border));
+  background: var(--preview-surface, var(--color-surface));
+}
+
+.theme-preview-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--preview-accent, var(--color-accent));
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 
