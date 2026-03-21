@@ -16,20 +16,20 @@ export default function App() {
           <nav className="nav">
             <div className="nav-brand">
               <img src="/icon-192.png" alt="" aria-hidden="true" />
-              Budget Overview
+              <span>Budget Overview</span>
             </div>
             <div className="nav-links">
               <NavLink to="/" end>
-                <HouseIcon size={20} /> Dashboard
+                <HouseIcon size={20} /> <span>Dashboard</span>
               </NavLink>
               <NavLink to="/items">
-                <ListBulletsIcon size={20} /> Items
+                <ListBulletsIcon size={20} /> <span>Items</span>
               </NavLink>
               <NavLink to="/summary">
-                <ChartBarIcon size={20} /> Summary
+                <ChartBarIcon size={20} /> <span>Summary</span>
               </NavLink>
               <NavLink to="/tags">
-                <TagIcon size={20} /> Tags
+                <TagIcon size={20} /> <span>Tags</span>
               </NavLink>
             </div>
             <ThemeSelector />
