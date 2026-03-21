@@ -15,7 +15,7 @@ I made this to replace my family's Excel spreadsheet. It's a simple monthly budg
 | --- | --- |
 | ![Light mode screenshot](./docs/screenshot-light.png) | ![Dark mode screenshot](./docs/screenshot-dark.png) |
 
->[!TIP]
+> [!TIP]
 > Theme support added as of v0.9.5, with Nord, Everforest, Gruvbox, and more!
 
 ## Features
