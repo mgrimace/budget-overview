@@ -4,7 +4,7 @@
 
 # Budget Overview
 
-I made this to replace my family's Excel spreadsheet. It's a simple monthly budget planner with a clean visual overview of money in and out, and what's left or in deficit afterwards.
+I made this to replace my family's Excel spreadsheet. It's a simple monthly budget planner with a clear visual overview of money in and money out, and what's left (or in deficit) afterwards.
 
 ## Screenshot
 
@@ -24,7 +24,7 @@ I made this to replace my family's Excel spreadsheet. It's a simple monthly budg
 
 ## What it's not
 
-Not a transaction tracker or accounting software. No bank sync, no receipt scanning, no daily logging. It's for setting up your monthly picture and understanding it visually.
+It's not a transaction tracker or accounting software. No bank sync, no receipt scanning, no daily logging. It's for setting up your monthly budget picture and understanding it visually.
 
 ## Tech Stack
 
