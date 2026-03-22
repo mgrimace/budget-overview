@@ -28,7 +28,7 @@ fn average_variable_amounts(amounts: &[VariableAmount]) -> f64 {
         return 0.0;
     }
     let sum: f64 = amounts.iter().map(|a| a.amount).sum();
-    sum / amounts.len() as f64
+    sum / 12.0
 }
 
 fn get_item_tags(conn: &rusqlite::Connection, item_id: i64) -> Vec<String> {
