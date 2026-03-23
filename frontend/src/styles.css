@@ -21,6 +21,7 @@
    Sections:
      Colors — Surface, Text, Border, Accent, Semantic
      Spacing — 4px base scale
+     Layout - px values for specific layout components
      Typography — rem scale
      Shape — border radius
      Elevation — shadows
@@ -57,8 +58,42 @@
   --space-5:  20px;
   --space-6:  24px;
   --space-8:  32px;
+  --space-11: 44px;
   --space-12: 48px;
   --space-16: 64px;
+
+  /* Borders */
+  --border-width: 1px;
+
+  /* Buttons */
+  --btn-min-width: 120px;
+  --btn-form-min-width: 80px;
+
+  /* Inputs & Forms */
+  --input-default-width: 240px;
+  --input-min-width: 180px;
+  --input-max-width: 280px;
+  --input-min-height: 44px;
+  --label-min-width: 36px;
+
+  /* Containers & Layout */
+  --container-min-width: 600px;
+  --container-max-width: 640px;
+  --chart-height: 500px;
+  --menu-min-width: 180px;
+
+  /* Icons & Indicators */
+  --icon-size: 36px;
+  --caret-size: 12px;
+  --checkmark-size: 14px;
+
+  /* Preview Boxes */
+  --preview-width: 28px;
+  --preview-height: 20px;
+  --preview-dot-size: 8px;
+
+  /* Specialized / Misc */
+  --amounts-min: 100px;
 
   /* Typography */
   --font-xs:   0.8rem;
@@ -159,7 +194,7 @@ body {
   gap: var(--space-6);
   padding: var(--space-4) var(--space-8);
   background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: var(--border-width) solid var(--color-border);
   box-shadow: var(--shadow);
   position: sticky;
   top: 0;
@@ -241,7 +276,7 @@ body {
 }
 
 .sankey-container {
-  height: 500px;
+  height: var(--chart-height);
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -251,7 +286,7 @@ body {
 .sankey-tooltip {
   background: var(--color-surface);
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   font-size: var(--font-sm);
@@ -308,7 +343,7 @@ body {
   font-weight: 700;
   font-size: var(--font-sm);
   color: var(--color-accent);
-  min-width: 60px;
+  min-width: var(--date-min-width);
 }
 
 .bill-name {
@@ -322,7 +357,7 @@ body {
 }
 
 /* ============================================================
-   PAGE SHELL
+   BUDGET ITEMS — SEARCH & ADD ITEMS
    ============================================================ */
 
 .page {
@@ -341,9 +376,37 @@ body {
 
 .page-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   margin-bottom: var(--space-6);
+}
+
+.page-header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: auto;
+  max-width: var(--container-max-width);
+}
+
+.page-header-search {
+  flex: 0 1 var(--input-default-width);
+  min-width: var(--input-min-width);
+  max-width: var(--input-max-width);
+  height: var(--space-11);
+  padding: 0 var(--space-3);
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
+  border: var(--border-width) solid var(--color-border);
+  font-family: inherit;
+  font-size: var(--font-base);
+  background: var(--color-surface);
+  color: var(--color-text);
+  line-height: var(--space-11);
 }
 
 .page-header h1 {
@@ -445,9 +508,10 @@ body {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-3) var(--space-5);
+  min-height: var(--space-11);
+  padding: 0 var(--space-5);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
   font-family: inherit;
@@ -481,8 +545,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--icon-size);
+  height: var(--icon-size);
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
@@ -534,7 +598,7 @@ body {
   font-weight: 600;
   background: var(--color-canvas);
   color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   cursor: pointer;
   transition: all var(--transition);
 }
@@ -607,9 +671,9 @@ body {
 .form-row textarea,
 .form-row-inline select {
   width: 100%;
-  min-height: 44px;
+  min-height: var(--input-min-height);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-canvas);
   color: var(--color-text);
@@ -620,8 +684,8 @@ body {
 
 .form-row-inline .btn-group .btn {
   width: auto;
-  min-width: 80px;
-  min-height: 44px;
+  min-width: var(--btn-form-min-width);
+  min-height: var(--input-min-height);
   padding: var(--space-3) var(--space-4);
   line-height: 1;
 }
@@ -638,7 +702,7 @@ body {
 
 .variable-amounts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--amounts-min), 1fr));
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
@@ -651,7 +715,7 @@ body {
 }
 
 .form-row-inline label {
-  min-width: 36px;
+  min-width: var(--label-min-width);
   margin-bottom: 0;
   font-weight: 600;
   font-size: var(--font-sm);
@@ -660,9 +724,9 @@ body {
 .form-row-inline input {
   flex: 1;
   min-width: 0;
-  min-height: 44px;
+  min-height: var(--input-min-height);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-canvas);
   color: var(--color-text);
@@ -698,7 +762,7 @@ body {
 .tag-create-form input {
   flex: 1;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-canvas);
   color: var(--color-text);
@@ -725,7 +789,7 @@ body {
 .tag-row input {
   flex: 1;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-canvas);
   color: var(--color-text);
@@ -868,7 +932,7 @@ body {
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
   font-family: inherit;
@@ -887,8 +951,8 @@ body {
 }
 
 .theme-selector-caret {
-  width: 12px;
-  height: 12px;
+  width: var(--caret-size);
+  height: var(--caret-size);
   color: var(--color-text-muted);
 }
 
@@ -896,9 +960,9 @@ body {
   position: absolute;
   top: calc(100% + var(--space-1));
   right: 0;
-  min-width: 180px;
+  min-width: var(--menu-min-width);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   list-style: none;
@@ -936,8 +1000,8 @@ body {
 }
 
 .theme-selector-option-check {
-  width: 14px;
-  height: 14px;
+  width: var(--checkmark-size);
+  height: var(--checkmark-size);
   color: var(--color-accent);
   flex-shrink: 0;
 }
@@ -953,16 +1017,16 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 20px;
+  width: var(--preview-box-width);
+  height: var(--preview-box-height);
   border-radius: var(--radius-xs);
-  border: 1px solid var(--preview-border, var(--color-border));
+  border: var(--border-width) solid var(--preview-border, var(--color-border));
   background: var(--preview-surface, var(--color-surface));
 }
 
 .theme-preview-dot {
-  width: 8px;
-  height: 8px;
+  width: var(--preview-dot-size);
+  height: var(--preview-dot-size);
   border-radius: 50%;
   background: var(--preview-accent, var(--color-accent));
 }
@@ -1024,8 +1088,8 @@ body {
   }
 
   .sankey-container > div {
-    min-width: 600px;
-    height: 500px;
+    min-width: var(--container-min-width);
+    height: var(--chart-height);
     padding: var(--space-4);
   }
 
@@ -1037,7 +1101,35 @@ body {
     display: none;
   }
 
-  /* Budget item edit/create layout: stack fields on mobile for readability */
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .page-header-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .page-header-search {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    height: var(--space-11);
+    line-height: var(--space-11);
+    margin-right: var(--space-2);
+  }
+
+  .page-header .btn-primary {
+    width: auto;
+    min-width: var(--btn-min-width);
+  }
+
   .form-row-inline {
     flex-direction: column;
     align-items: stretch;
