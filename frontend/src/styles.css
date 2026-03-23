@@ -58,6 +58,7 @@
   --space-6:  24px;
   --space-8:  32px;
   --space-12: 48px;
+  --space-16: 64px;
 
   /* Typography */
   --font-xs:   0.8rem;
@@ -552,12 +553,17 @@ body {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: var(--space-6);
+  padding: var(--space-4) var(--space-6) var(--space-6);
   margin-bottom: var(--space-6);
 }
 
 .budget-form h2 {
   margin-bottom: var(--space-5);
+}
+
+.form-row.variable-toggle {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .form-row {
@@ -572,11 +578,36 @@ body {
   color: var(--color-text-muted);
 }
 
+.form-row label .helper-text {
+  display: block;
+  margin-top: var(--space-1);
+  font-weight: 400;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  white-space: normal;
+}
+
+.form-row-inline {
+  align-items: flex-start;
+}
+
+.form-row-inline > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.small-input {
+  width: 100%;
+  max-width: 100%;
+}
+
 .form-row input[type='text'],
 .form-row input[type='number'],
 .form-row select,
-.form-row textarea {
+.form-row textarea,
+.form-row-inline select {
   width: 100%;
+  min-height: 44px;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -585,6 +616,19 @@ body {
   font-family: inherit;
   font-size: var(--font-base);
   transition: border-color var(--transition);
+}
+
+.form-row-inline .btn-group .btn {
+  width: auto;
+  min-width: 80px;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  line-height: 1;
+}
+
+.form-row label,
+.form-row-inline label {
+  white-space: nowrap;
 }
 
 .form-row input[type='checkbox'] {
@@ -603,6 +647,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .form-row-inline label {
@@ -615,13 +660,14 @@ body {
 .form-row-inline input {
   flex: 1;
   min-width: 0;
-  padding: var(--space-2) var(--space-3);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-canvas);
   color: var(--color-text);
   font-family: inherit;
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
 }
 
 .form-row-inline input[type='number'] {
@@ -989,6 +1035,22 @@ body {
 
   .theme-selector-label {
     display: none;
+  }
+
+  /* Budget item edit/create layout: stack fields on mobile for readability */
+  .form-row-inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .form-row-inline > div {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .form-row-inline label {
+    min-width: 0;
   }
 
 }

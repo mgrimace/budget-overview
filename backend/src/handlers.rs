@@ -100,6 +100,32 @@ fn build_budget_item(
     }
 }
 
+fn normalize_tag_order(tags: &Option<Vec<String>>) -> Option<Vec<String>> {
+    tags.as_ref().map(|tags| {
+        let mut ordered = Vec::new();
+        let mut seen = HashSet::new();
+
+        for tag in tags {
+            if seen.insert(tag.clone()) {
+                ordered.push(tag.clone());
+            }
+        }
+
+        if ordered.is_empty() {
+            ordered
+        } else {
+            let primary = ordered[0].clone();
+            let mut reordered = vec![primary.clone()];
+            for tag in ordered.into_iter().skip(1) {
+                if tag != primary {
+                    reordered.push(tag);
+                }
+            }
+            reordered
+        }
+    })
+}
+
 fn save_tags(conn: &rusqlite::Connection, item_id: i64, tags: &Option<Vec<String>>) {
     if let Some(ref tags) = tags {
         for tag_name in tags {
@@ -198,7 +224,8 @@ pub async fn create_budget_item(
     .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let id = db.last_insert_rowid();
-    save_tags(&db, id, &input.tags);
+    let normalized_tags = normalize_tag_order(&input.tags);
+    save_tags(&db, id, &normalized_tags);
     save_variable_amounts(&db, id, &input.variable_amounts);
 
     let created_at = db
@@ -292,7 +319,8 @@ pub async fn update_budget_item(
 
     db.execute("DELETE FROM budget_item_tags WHERE budget_item_id = ?1", [id])
         .ok();
-    save_tags(&db, id, &input.tags);
+    let normalized_tags = normalize_tag_order(&input.tags);
+    save_tags(&db, id, &normalized_tags);
 
     db.execute("DELETE FROM variable_amounts WHERE budget_item_id = ?1", [id])
         .ok();
