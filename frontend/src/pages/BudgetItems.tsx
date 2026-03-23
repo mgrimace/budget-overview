@@ -8,6 +8,7 @@ export default function BudgetItems() {
   const [items, setItems] = useState<BudgetItem[]>([]);
   const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   const load = () => fetchBudgetItems().then(setItems);
   useEffect(() => {
@@ -23,15 +24,24 @@ export default function BudgetItems() {
     <div className="page">
       <div className="page-header">
         <h1>Budget Items</h1>
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setEditing(null);
-            setShowForm(true);
-          }}
-        >
-          <PlusIcon size={20} /> Add Item
-        </button>
+        <div className="page-header-controls">
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search items/tags"
+            className="page-header-search"
+          />
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
+            <PlusIcon size={20} /> Add Item
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -50,7 +60,15 @@ export default function BudgetItems() {
       )}
 
       <div className="items-grid">
-        {items.map((item) => (
+        {items
+          .filter((item) => {
+            if (!searchText.trim()) return true;
+            const q = searchText.trim().toLowerCase();
+            const nameMatch = item.name.toLowerCase().includes(q);
+            const tagMatch = item.tags.some((tag) => tag.toLowerCase().includes(q));
+            return nameMatch || tagMatch;
+          })
+          .map((item) => (
           <div key={item.id} className={`item-card ${item.item_type}`}>
             <div className="item-card-header">
               <span className="item-name">{item.name}</span>
@@ -64,8 +82,8 @@ export default function BudgetItems() {
             </div>
             {item.tags.length > 0 && (
               <div className="item-tags">
-                {item.tags.map((tag) => (
-                  <span key={tag} className="tag-badge">
+                {item.tags.map((tag, index) => (
+                  <span key={`${item.id}-${tag}`} className={`tag-badge ${index === 0 ? 'selected' : ''}`}>
                     {tag}
                   </span>
                 ))}
