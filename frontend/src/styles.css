@@ -81,6 +81,7 @@
   --container-max-width: 640px;
   --chart-height: 500px;
   --menu-min-width: 180px;
+  --date-min-width: 60px;
 
   /* Icons & Indicators */
   --icon-size: 36px;
@@ -427,7 +428,7 @@ body {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: var(--space-5);
+  padding: var(--space-4);
   border-left: var(--space-1) solid var(--color-border);
   transition: box-shadow var(--transition);
 }
@@ -1017,8 +1018,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--preview-box-width);
-  height: var(--preview-box-height);
+  width: var(--preview-width);
+  height: var(--preview-height);
   border-radius: var(--radius-xs);
   border: var(--border-width) solid var(--preview-border, var(--color-border));
   background: var(--preview-surface, var(--color-surface));
