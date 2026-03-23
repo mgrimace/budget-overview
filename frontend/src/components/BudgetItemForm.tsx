@@ -16,12 +16,14 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
   const [itemType, setItemType] = useState<'income' | 'expense'>(item?.item_type ?? 'expense');
   const [frequency, setFrequency] = useState(item?.frequency ?? 'monthly');
   const [dayOfMonth, setDayOfMonth] = useState<number | ''>(item?.day_of_month ?? '');
-  // Add default 'Income' tag for salary/freelance if creating new income item
-  const defaultIncomeTags = ['salary', 'freelance', 'contract', 'consulting'];
-  const isNewIncome = !item && itemType === 'income';
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    item?.tags ?? (isNewIncome ? ['Income'] : [])
+
+  const initialTags = item?.tags ?? [];
+  const initialPrimaryTag = initialTags[0] ?? '';
+  const [primaryTag, setPrimaryTag] = useState<string>(initialPrimaryTag);
+  const [additionalTags, setAdditionalTags] = useState<string[]>(
+    initialTags.filter((t) => t !== initialPrimaryTag),
   );
+
   const [notes, setNotes] = useState(item?.notes ?? '');
   const [isVariable, setIsVariable] = useState(!!item?.variable_amounts?.length);
   const [variableAmounts, setVariableAmounts] = useState<number[]>(
@@ -40,17 +42,15 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let tagsToSave = selectedTags;
-    // If new income and no tags, add 'Income' tag by default
-    if (isNewIncome && tagsToSave.length === 0) {
-      tagsToSave = ['Income'];
+    if (!primaryTag) {
+      alert('Primary tag is required.');
+      return;
     }
-    // If new income and tag matches default income sources, add 'Income' tag
-    if (isNewIncome && !tagsToSave.includes('Income')) {
-      if (defaultIncomeTags.some((t) => name.toLowerCase().includes(t))) {
-        tagsToSave = [...tagsToSave, 'Income'];
-      }
-    }
+
+    let tagsToSave = [primaryTag];
+    tagsToSave.push(...additionalTags.filter((tag) => tag !== primaryTag));
+    tagsToSave = Array.from(new Set(tagsToSave));
+
     const data: CreateBudgetItem = {
       name,
       amount: isVariable ? 0 : amount,
@@ -73,42 +73,38 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
     onSave();
   };
 
-  const toggleTag = (tagName: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
-    );
-  };
-
   return (
     <form className="budget-form" onSubmit={handleSubmit}>
       <h2>{item ? 'Edit Item' : 'New Budget Item'}</h2>
 
-      <div className="form-row">
-        <label>Name</label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
+      <div className="form-row-inline">
+        <div style={{ flex: 1 }}>
+          <label>Name</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
 
-      <div className="form-row">
-        <label>Type</label>
-        <div className="btn-group">
-          <button
-            type="button"
-            className={`btn ${itemType === 'income' ? 'active' : ''}`}
-            onClick={() => setItemType('income')}
-          >
-            Income
-          </button>
-          <button
-            type="button"
-            className={`btn ${itemType === 'expense' ? 'active' : ''}`}
-            onClick={() => setItemType('expense')}
-          >
-            Expense
-          </button>
+        <div style={{ minWidth: '170px' }}>
+          <label>Type</label>
+          <div className="btn-group">
+            <button
+              type="button"
+              className={`btn btn-income ${itemType === 'income' ? 'active' : ''}`}
+              onClick={() => setItemType('income')}
+            >
+              Income
+            </button>
+            <button
+              type="button"
+              className={`btn btn-expense ${itemType === 'expense' ? 'active' : ''}`}
+              onClick={() => setItemType('expense')}
+            >
+              Expense
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="form-row">
+      <div className="form-row variable-toggle">
         <label>
           <input
             type="checkbox"
@@ -151,45 +147,94 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
               required
             />
           </div>
-          <div className="form-row">
-            <label>Frequency</label>
-            <select value={frequency} onChange={(e) => setFrequency(e.target.value as CreateBudgetItem['frequency'])}>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="biweekly">Biweekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
+
+          <div className="form-row-inline">
+            <div style={{ flex: 1 }}>
+              <label>Frequency</label>
+              <select
+                value={frequency}
+                onChange={(e) => setFrequency(e.target.value as CreateBudgetItem['frequency'])}
+              >
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Biweekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+
+            <div style={{ minWidth: '170px' }}>
+              <label>Day of Month (optional)</label>
+              <input
+                className="small-input"
+                type="number"
+                min="1"
+                max="31"
+                value={dayOfMonth}
+                onChange={(e) => setDayOfMonth(e.target.value === '' ? '' : parseInt(e.target.value))}
+              />
+            </div>
           </div>
         </>
       )}
 
       <div className="form-row">
-        <label>Day of Month (optional)</label>
-        <input
-          type="number"
-          min="1"
-          max="31"
-          value={dayOfMonth}
-          onChange={(e) =>
-            setDayOfMonth(e.target.value === '' ? '' : parseInt(e.target.value))
-          }
-        />
+        <label>
+          Primary Tag
+          <small className="helper-text">
+            Select the main tag for this item. This determines which category it appears under in the Sankey diagram and calculations.
+          </small>
+        </label>
+        <select
+          value={primaryTag}
+          onChange={(e) => {
+            const value = e.target.value;
+            setPrimaryTag(value);
+            setAdditionalTags((prev) => prev.filter((tag) => tag !== value));
+          }}
+          required
+        >
+          <option value="" disabled>
+            Select primary tag
+          </option>
+          {availableTags.map((tag) => (
+            <option key={tag.id} value={tag.name}>
+              {tag.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="form-row">
-        <label>Tags</label>
+        <label>
+          Additional Tags
+          <small className="helper-text">
+            Select any additional tags to help filter and organize items in the summary view. These do not affect the Sankey diagram.
+          </small>
+        </label>
         <div className="tag-selector">
-          {availableTags.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              className={`tag-badge ${selectedTags.includes(tag.name) ? 'selected' : ''}`}
-              onClick={() => toggleTag(tag.name)}
-            >
-              {tag.name}
-            </button>
-          ))}
+          {availableTags
+            .filter((tag) => tag.name !== primaryTag)
+            .map((tag) => {
+              const active = additionalTags.includes(tag.name);
+              return (
+                <button
+                  key={tag.id}
+                  type="button"
+                  className={`tag-badge ${active ? 'selected' : ''}`}
+                  onClick={() => {
+                    setAdditionalTags((prev) => {
+                      if (prev.includes(tag.name)) {
+                        return prev.filter((t) => t !== tag.name);
+                      }
+                      return [...prev, tag.name];
+                    });
+                  }}
+                >
+                  {tag.name}
+                </button>
+              );
+            })}
         </div>
       </div>
 
