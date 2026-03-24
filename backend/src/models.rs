@@ -73,4 +73,5 @@ pub struct UpcomingBill {
     pub amount: f64,
     pub day_of_month: i32,
     pub tags: Vec<String>,
+    pub is_variable: bool,
 }

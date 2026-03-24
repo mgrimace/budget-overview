@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchUpcomingBills } from '../api';
 import type { UpcomingBill } from '../types';
-import { CalendarBlank } from '@phosphor-icons/react';
+import { CalendarBlankIcon } from '@phosphor-icons/react';
 
 const MONTH_NAMES = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -31,7 +31,7 @@ export default function UpcomingBillsSidebar() {
   return (
     <aside className="sidebar">
       <h2>
-        <CalendarBlank size={22} /> Upcoming Bills
+        <CalendarBlankIcon size={22} /> Upcoming Bills
       </h2>
       {sorted.length === 0 ? (
         <p className="empty-state">No upcoming bills.</p>
@@ -46,7 +46,10 @@ export default function UpcomingBillsSidebar() {
                   {month} {bill.day_of_month}
                 </span>
                 <span className="bill-name">{bill.name}</span>
-                <span className="bill-amount">${bill.amount.toFixed(2)}</span>
+                <span className="bill-amount">
+                  ${bill.amount.toFixed(2)}
+                  {bill.is_variable && <span className="bill-amount-avg">(avg)</span>}
+                </span>
               </li>
             );
           })}
