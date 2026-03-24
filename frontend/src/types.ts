@@ -43,4 +43,5 @@ export interface UpcomingBill {
   amount: number;
   day_of_month: number;
   tags: string[];
+  is_variable: boolean;
 }

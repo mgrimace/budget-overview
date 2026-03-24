@@ -520,17 +520,18 @@ pub async fn get_upcoming_bills(State(db): State<Db>) -> Result<Json<Vec<Upcomin
 
     let mut stmt = db
         .prepare(
-            "SELECT id, name, amount, day_of_month FROM budget_items \
+            "SELECT id, name, amount, frequency, day_of_month FROM budget_items \
              WHERE item_type = 'expense' AND day_of_month IS NOT NULL \
              ORDER BY day_of_month",
         )
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let rows: Vec<(i64, String, f64, i32)> = stmt.query_map([], |row| {
+    let rows: Vec<(i64, String, f64, String, i32)> = stmt.query_map([], |row| {
         Ok((
             row.get::<_, i64>(0)?,
             row.get::<_, String>(1)?,
             row.get::<_, f64>(2)?,
-            row.get::<_, i32>(3)?,
+            row.get::<_, String>(3)?,
+            row.get::<_, i32>(4)?,
         ))
     })
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -540,13 +541,21 @@ pub async fn get_upcoming_bills(State(db): State<Db>) -> Result<Json<Vec<Upcomin
 
     let bills = rows
         .into_iter()
-        .map(|(id, name, amount, day_of_month)| {
+        .map(|(id, name, amount, frequency, day_of_month)| {
             let tags = get_item_tags(&db, id);
+            let var_amounts = get_variable_amounts(&db, id);
+            let is_variable = !var_amounts.is_empty();
+            let display_amount = if is_variable {
+                average_variable_amounts(&var_amounts)
+            } else {
+                normalize_to_monthly(amount, &frequency)
+            };
             UpcomingBill {
                 name,
-                amount,
+                amount: display_amount,
                 day_of_month,
                 tags,
+                is_variable,
             }
         })
         .collect();
