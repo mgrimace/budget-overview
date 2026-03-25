@@ -30,6 +30,11 @@ pub struct CreateBudgetItem {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UpdatePrimaryTag {
+    pub primary_tag: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VariableAmount {
     pub month: i32,
     pub amount: f64,

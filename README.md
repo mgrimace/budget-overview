@@ -86,6 +86,7 @@ Open `http://localhost:3001`. Data persists to `./data/budget.db`.
 | DELETE | /api/tags/:id | Delete a tag |
 | GET | /api/cashflow | Get Sankey diagram data |
 | GET | /api/upcoming-bills | Get upcoming bills |
+| PATCH | /api/budget-items/:id/primary-tag | Set a budget item primary tag (adds to tags if needed) |
 
 ## Normalization
 

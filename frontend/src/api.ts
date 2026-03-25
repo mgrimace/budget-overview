@@ -29,6 +29,15 @@ export async function deleteBudgetItem(id: number): Promise<void> {
   await fetch(`${API}/budget-items/${id}`, { method: 'DELETE' });
 }
 
+export async function updateBudgetItemPrimaryTag(id: number, primary_tag: string): Promise<BudgetItem> {
+  const res = await fetch(`${API}/budget-items/${id}/primary-tag`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ primary_tag }),
+  });
+  return res.json();
+}
+
 export async function fetchTags(): Promise<Tag[]> {
   const res = await fetch(`${API}/tags`);
   return res.json();
