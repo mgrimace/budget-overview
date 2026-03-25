@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { fetchBudgetItems, deleteBudgetItem, updateBudgetItemPrimaryTag } from '../api';
 import type { BudgetItem } from '../types';
 import BudgetItemForm from '../components/BudgetItemForm';
-import { PlusIcon, TrashIcon, PencilSimpleIcon } from '@phosphor-icons/react';
+import { PlusIcon, TrashIcon, PencilSimpleIcon, FunnelSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 
 export default function BudgetItems() {
   const [items, setItems] = useState<BudgetItem[]>([]);
   const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [sortMode, setSortMode] = useState<'name' | 'name_desc' | 'amount_desc' | 'amount_asc' | 'date_desc' | 'date_asc'>('amount_desc');
 
   const load = () => fetchBudgetItems().then(setItems);
   useEffect(() => {
@@ -20,18 +21,71 @@ export default function BudgetItems() {
     load();
   };
 
+  const filteredItems = items.filter((item) => {
+    if (!searchText.trim()) return true;
+    const q = searchText.trim().toLowerCase();
+    const nameMatch = item.name.toLowerCase().includes(q);
+    const tagMatch = item.tags.some((tag) => tag.toLowerCase().includes(q));
+    return nameMatch || tagMatch;
+  });
+
+  const visibleItems = [...filteredItems].sort((a, b) => {
+    switch (sortMode) {
+      case 'name':
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+      case 'name_desc':
+        return b.name.toLowerCase().localeCompare(a.name.toLowerCase());
+      case 'amount_desc':
+        return b.monthly_amount - a.monthly_amount;
+      case 'amount_asc':
+        return a.monthly_amount - b.monthly_amount;
+      case 'date_desc': {
+        const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bDate - aDate;
+      }
+      case 'date_asc': {
+        const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return aDate - bDate;
+      }
+      default:
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    }
+  });
+
   return (
     <div className="page">
       <div className="page-header">
         <h1>Budget Items</h1>
         <div className="page-header-controls">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Search items/tags"
-            className="page-header-search"
-          />
+          <div className="input-with-icon">
+            <MagnifyingGlassIcon size={16} />
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search items/tags"
+              className="page-header-search"
+            />
+          </div>
+
+          <div className="sort-control">
+            <FunnelSimpleIcon size={16} />
+            <select
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value as 'name' | 'name_desc' | 'amount_desc' | 'amount_asc' | 'date_desc' | 'date_asc')}
+              className="sort-select"
+            >
+              <option value="name">A–Z</option>
+              <option value="name_desc">Z–A</option>
+              <option value="amount_desc">Highest $</option>
+              <option value="amount_asc">Lowest $</option>
+              <option value="date_desc">Newest</option>
+              <option value="date_asc">Oldest</option>
+            </select>
+          </div>
+
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -39,7 +93,7 @@ export default function BudgetItems() {
               setShowForm(true);
             }}
           >
-            <PlusIcon size={20} /> Add Item
+            <PlusIcon size={16} /> Add Item
           </button>
         </div>
       </div>
@@ -60,15 +114,7 @@ export default function BudgetItems() {
       )}
 
       <div className="items-grid">
-        {items
-          .filter((item) => {
-            if (!searchText.trim()) return true;
-            const q = searchText.trim().toLowerCase();
-            const nameMatch = item.name.toLowerCase().includes(q);
-            const tagMatch = item.tags.some((tag) => tag.toLowerCase().includes(q));
-            return nameMatch || tagMatch;
-          })
-          .map((item) => (
+        {visibleItems.map((item) => (
           <div key={item.id} className={`item-card ${item.item_type}`}>
             <div className="item-card-header">
               <span className="item-name">{item.name}</span>
