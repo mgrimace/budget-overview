@@ -32,6 +32,10 @@ async fn main() {
                 .delete(handlers::delete_budget_item),
         )
         .route(
+            "/api/budget-items/:id/primary-tag",
+            axum::routing::patch(handlers::update_budget_item_primary_tag),
+        )
+        .route(
             "/api/tags",
             get(handlers::list_tags).post(handlers::create_tag),
         )

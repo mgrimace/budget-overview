@@ -3,6 +3,7 @@ use axum::{
     http::StatusCode,
     Json,
 };
+use rusqlite::OptionalExtension;
 use std::collections::{HashMap, HashSet};
 
 use crate::db::Db;
@@ -348,6 +349,86 @@ pub async fn update_budget_item(
         input.day_of_month,
         input.notes,
         input.primary_tag,
+        created_at,
+    )))
+}
+
+pub async fn update_budget_item_primary_tag(
+    State(db): State<Db>,
+    Path(id): Path<i64>,
+    Json(input): Json<UpdatePrimaryTag>,
+) -> Result<Json<BudgetItem>, StatusCode> {
+    let db = db.lock().await;
+
+    let primary_tag = input.primary_tag.trim();
+    if primary_tag.is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let exists = db
+        .query_row(
+            "SELECT 1 FROM budget_items WHERE id = ?1",
+            [id],
+            |_row| Ok(1),
+        )
+        .optional()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .is_some();
+
+    if !exists {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    // Ensure primary_tag exists in tags and association exists
+    db.execute("INSERT OR IGNORE INTO tags (name) VALUES (?1)", [primary_tag])
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let tag_id: i64 = db
+        .query_row("SELECT id FROM tags WHERE name = ?1", [primary_tag], |row| row.get(0))
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    db.execute(
+        "INSERT OR IGNORE INTO budget_item_tags (budget_item_id, tag_id) VALUES (?1, ?2)",
+        rusqlite::params![id, tag_id],
+    )
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    db.execute(
+        "UPDATE budget_items SET primary_tag = ?1 WHERE id = ?2",
+        rusqlite::params![primary_tag, id],
+    )
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag_val, created_at): BudgetItemRow =
+        db.query_row(
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at FROM budget_items WHERE id = ?1",
+            [id],
+            |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, f64>(2)?,
+                    row.get::<_, String>(3)?,
+                    row.get::<_, String>(4)?,
+                    row.get::<_, Option<i32>>(5)?,
+                    row.get::<_, Option<String>>(6)?,
+                    row.get::<_, String>(7)?,
+                    row.get::<_, String>(8)?,
+                ))
+            },
+        )
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(build_budget_item(
+        &db,
+        id,
+        name,
+        amount,
+        item_type,
+        frequency,
+        day_of_month,
+        notes,
+        primary_tag_val,
         created_at,
     )))
 }

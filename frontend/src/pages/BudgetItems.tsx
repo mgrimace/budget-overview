@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchBudgetItems, deleteBudgetItem } from '../api';
+import { fetchBudgetItems, deleteBudgetItem, updateBudgetItemPrimaryTag } from '../api';
 import type { BudgetItem } from '../types';
 import BudgetItemForm from '../components/BudgetItemForm';
 import { PlusIcon, TrashIcon, PencilSimpleIcon } from '@phosphor-icons/react';
@@ -82,11 +82,25 @@ export default function BudgetItems() {
             </div>
             {item.tags.length > 0 && (
               <div className="item-tags">
-                {item.tags.map((tag, index) => (
-                  <span key={`${item.id}-${tag}`} className={`tag-badge ${tag === item.primary_tag ? 'selected' : ''}`}>
-                    {tag}
-                  </span>
-                ))}
+                {item.tags.map((tag) => {
+                  const isPrimary = tag === item.primary_tag;
+                  return (
+                    <button
+                      key={`${item.id}-${tag}`}
+                      type="button"
+                      className={`tag-badge ${isPrimary ? 'selected' : ''}`}
+                      onClick={async () => {
+                        if (!isPrimary && item.tags.length > 1) {
+                          await updateBudgetItemPrimaryTag(item.id, tag);
+                          load();
+                        }
+                      }}
+                      title={isPrimary ? 'Primary tag' : 'Click to make primary'}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
               </div>
             )}
             {item.notes && <p className="item-notes">{item.notes}</p>}
