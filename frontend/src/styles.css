@@ -558,6 +558,88 @@ body {
 }
 
 /* ============================================================
+   SNAPSHOTS
+   ============================================================ */
+
+.snapshot-footer-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  min-height: var(--input-min-height);
+}
+
+.snapshot-footer-row .snapshot-activate-btn {
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.snapshot-footer-icons {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 0.06rem;
+  z-index: 2;
+}
+
+.snapshot-footer-icons .btn-icon {
+  min-width: auto;
+  width: 30px;
+  height: 30px;
+  padding: 0.2rem;
+}
+
+.snapshot-banner {
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.snapshot-warning-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-left: var(--space-3);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-negative);
+  color: var(--color-text-inverse);
+  font-weight: 700;
+  font-size: var(--font-xs);
+  white-space: nowrap;
+}
+
+.snapshot-helper-text {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  max-width: 680px;
+  line-height: 1.4;
+}
+
+.snapshots-controls {
+  justify-content: flex-start;
+  margin-top: var(--space-2);
+}
+
+.snapshots-controls .input-with-icon {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.snapshots-controls .input-with-icon input {
+  background: transparent;
+}
+
+/* ============================================================
    BUTTONS
    ============================================================ */
 
@@ -885,6 +967,14 @@ body {
   box-shadow: var(--shadow);
   padding: var(--space-6);
   text-align: center;
+  border: 1px solid var(--color-border);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.summary-card.active {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
 }
 
 .summary-card h3 {
@@ -1116,6 +1206,27 @@ body {
 
   .main {
     padding: var(--space-4);
+  }
+
+  .snapshot-footer-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  .snapshot-footer-row .snapshot-activate-btn {
+    margin: 0 auto;
+  }
+
+  .snapshot-footer-icons {
+    position: static;
+    margin: var(--space-1) 0 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .snapshot-warning-badge span {
+    display: none;
   }
 
   .nav {
