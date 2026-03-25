@@ -15,7 +15,11 @@ export default function Summary() {
 
   const filtered =
     selectedTags.length > 0
-      ? items.filter((item) => item.tags.some((t) => selectedTags.includes(t)))
+      ? items.filter((item) =>
+          selectedTags.some(
+            (tag) => item.primary_tag === tag || item.tags.includes(tag),
+          ),
+        )
       : items;
 
   const multiplier = viewMode === 'yearly' ? 12 : 1;
@@ -34,15 +38,16 @@ export default function Summary() {
   filtered
     .filter((i) => i.item_type === 'expense')
     .forEach((item) => {
-      const tag = item.tags[0] ?? 'Misc';
+      const tag = item.primary_tag || 'Uncategorized';
       expenseByTag[tag] = (expenseByTag[tag] ?? 0) + item.monthly_amount * multiplier;
     });
 
+  // Income by Category
   const incomeByTag: Record<string, number> = {};
   filtered
     .filter((i) => i.item_type === 'income')
     .forEach((item) => {
-      const tag = item.tags[0] ?? 'Other';
+      const tag = item.primary_tag || 'Other';
       incomeByTag[tag] = (incomeByTag[tag] ?? 0) + item.monthly_amount * multiplier;
     });
 
@@ -93,8 +98,8 @@ export default function Summary() {
           <h3>Total Expenses</h3>
           <p className="summary-value">${expenses.toFixed(2)}</p>
         </div>
-        <div className={`summary-card ${net >= 0 ? 'remaining' : 'deficit'}`}>
-          <h3>{net >= 0 ? 'Remaining' : 'Deficit'}</h3>
+        <div className={`summary-card ${net >= 0 ? 'surplus' : 'deficit'}`}>
+          <h3>{net >= 0 ? 'Surplus' : 'Deficit'}</h3>
           <p className="summary-value">${Math.abs(net).toFixed(2)}</p>
         </div>
       </div>
@@ -126,13 +131,11 @@ export default function Summary() {
               <span className="category-name">{tag}</span>
               <div className="category-bar">
                 <div
-                  className="category-fill category-fill--income"
-                  style={{ width: `${income > 0 ? (amount / income) * 100 : 0}%` }}
+                  className="category-fill"
+                  style={{ background: 'var(--color-income)', width: `${income > 0 ? (amount / income) * 100 : 0}%` }}
                 />
               </div>
-              <span className="category-amount category-amount--income">
-                ${amount.toFixed(2)}
-              </span>
+              <span className="category-amount" style={{ color: 'var(--color-income)' }}>${amount.toFixed(2)}</span>
             </div>
           ))}
       </div>
