@@ -1,4 +1,4 @@
-import type { BudgetItem, CreateBudgetItem, Tag, SankeyData, UpcomingBill } from './types';
+import type { BudgetItem, CreateBudgetItem, Tag, SankeyData, UpcomingBill, SnapshotInfo, ActiveSnapshot } from './types';
 
 const API = '/api';
 
@@ -74,3 +74,54 @@ export async function fetchUpcomingBills(): Promise<UpcomingBill[]> {
   const res = await fetch(`${API}/upcoming-bills`);
   return res.json();
 }
+
+export async function fetchSnapshots(): Promise<SnapshotInfo[]> {
+  const res = await fetch(`${API}/snapshots`);
+  return res.json();
+}
+
+export async function createSnapshot(label?: string): Promise<SnapshotInfo> {
+  const res = await fetch(`${API}/snapshots`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ label }),
+  });
+  return res.json();
+}
+
+export async function activateSnapshot(filename: string): Promise<ActiveSnapshot> {
+  const res = await fetch(`${API}/snapshots/activate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename }),
+  });
+  return res.json();
+}
+
+export async function resetSnapshot(): Promise<ActiveSnapshot> {
+  const res = await fetch(`${API}/snapshots/reset`, {
+    method: 'POST',
+  });
+  return res.json();
+}
+
+export async function fetchActiveSnapshot(): Promise<ActiveSnapshot> {
+  const res = await fetch(`${API}/snapshots/active`);
+  return res.json();
+}
+
+export async function deleteSnapshot(filename: string): Promise<void> {
+  await fetch(`${API}/snapshots/${encodeURIComponent(filename)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function renameSnapshot(filename: string, label: string): Promise<SnapshotInfo> {
+  const res = await fetch(`${API}/snapshots/${encodeURIComponent(filename)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ label }),
+  });
+  return res.json();
+}
+

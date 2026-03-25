@@ -4,7 +4,7 @@ use axum::{
     Json,
 };
 use rusqlite::OptionalExtension;
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, fs, path::PathBuf, time::{SystemTime, UNIX_EPOCH}};
 
 use crate::db::Db;
 use crate::models::*;
@@ -145,8 +145,14 @@ fn save_variable_amounts(
 
 // --- Budget Items ---
 
+async fn get_db_conn(db: &Db) -> Result<rusqlite::Connection, StatusCode> {
+    db.get_connection()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
 pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetItem>>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     let mut stmt = db
         .prepare(
@@ -189,7 +195,7 @@ pub async fn create_budget_item(
     State(db): State<Db>,
     Json(input): Json<CreateBudgetItem>,
 ) -> Result<(StatusCode, Json<BudgetItem>), StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     if input.primary_tag.trim().is_empty() {
         return Err(StatusCode::BAD_REQUEST);
@@ -248,7 +254,7 @@ pub async fn get_budget_item(
     State(db): State<Db>,
     Path(id): Path<i64>,
 ) -> Result<Json<BudgetItem>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at): BudgetItemRow =
         db.query_row(
@@ -290,7 +296,7 @@ pub async fn update_budget_item(
     Path(id): Path<i64>,
     Json(input): Json<CreateBudgetItem>,
 ) -> Result<Json<BudgetItem>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     let changes = db
         .execute(
@@ -358,7 +364,7 @@ pub async fn update_budget_item_primary_tag(
     Path(id): Path<i64>,
     Json(input): Json<UpdatePrimaryTag>,
 ) -> Result<Json<BudgetItem>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     let primary_tag = input.primary_tag.trim();
     if primary_tag.is_empty() {
@@ -437,7 +443,10 @@ pub async fn delete_budget_item(
     State(db): State<Db>,
     Path(id): Path<i64>,
 ) -> StatusCode {
-    let db = db.lock().await;
+    let db = match get_db_conn(&db).await {
+        Ok(conn) => conn,
+        Err(status) => return status,
+    };
     match db.execute("DELETE FROM budget_items WHERE id = ?1", [id]) {
         Ok(changes) if changes > 0 => StatusCode::NO_CONTENT,
         _ => StatusCode::NOT_FOUND,
@@ -447,7 +456,7 @@ pub async fn delete_budget_item(
 // --- Tags ---
 
 pub async fn list_tags(State(db): State<Db>) -> Result<Json<Vec<Tag>>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
     let mut stmt = db
         .prepare("SELECT id, name FROM tags ORDER BY name")
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -467,7 +476,7 @@ pub async fn create_tag(
     State(db): State<Db>,
     Json(input): Json<CreateTag>,
 ) -> Result<(StatusCode, Json<Tag>), StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
     db.execute("INSERT INTO tags (name) VALUES (?1)", [&input.name])
         .map_err(|_| StatusCode::CONFLICT)?;
     let id = db.last_insert_rowid();
@@ -479,7 +488,7 @@ pub async fn rename_tag(
     Path(id): Path<i64>,
     Json(input): Json<RenameTag>,
 ) -> Result<Json<Tag>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
     let changes = db
         .execute(
             "UPDATE tags SET name = ?1 WHERE id = ?2",
@@ -493,17 +502,231 @@ pub async fn rename_tag(
 }
 
 pub async fn delete_tag(State(db): State<Db>, Path(id): Path<i64>) -> StatusCode {
-    let db = db.lock().await;
+    let db = match get_db_conn(&db).await {
+        Ok(conn) => conn,
+        Err(status) => return status,
+    };
     match db.execute("DELETE FROM tags WHERE id = ?1", [id]) {
         Ok(changes) if changes > 0 => StatusCode::NO_CONTENT,
         _ => StatusCode::NOT_FOUND,
     }
 }
 
+pub async fn create_snapshot(
+    State(db): State<Db>,
+    Json(input): Json<CreateSnapshot>,
+) -> Result<Json<SnapshotInfo>, StatusCode> {
+    let active_path = db.active_db_path().await;
+    let label = input
+        .label
+        .as_ref()
+        .map(|l| l.trim().replace(' ', "-").chars().filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_').collect::<String>())
+        .filter(|l| !l.is_empty());
+
+    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?.as_secs();
+    let file_name = if let Some(label) = &label {
+        format!("{}-{}.db", timestamp, label)
+    } else {
+        format!("{}.db", timestamp)
+    };
+    let snapshot_dir = PathBuf::from(crate::db::SNAPSHOT_DIR);
+    let target = snapshot_dir.join(&file_name);
+
+    fs::create_dir_all(&snapshot_dir).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    fs::copy(&active_path, &target).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let created_at = target
+        .metadata()
+        .and_then(|m| m.modified())
+        .ok()
+        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_else(|| timestamp.to_string());
+
+    Ok(Json(SnapshotInfo {
+        filename: file_name,
+        created_at,
+        label,
+    }))
+}
+
+pub async fn list_snapshots(State(_): State<Db>) -> Result<Json<Vec<SnapshotInfo>>, StatusCode> {
+    let mut entries = fs::read_dir(crate::db::SNAPSHOT_DIR)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .filter_map(Result::ok)
+        .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("db"))
+        .collect::<Vec<_>>();
+
+    entries.sort_by_key(|e| e.path());
+
+    let snapshots = entries
+        .into_iter()
+        .filter_map(|e| {
+            let path = e.path();
+            let filename = path.file_name()?.to_string_lossy().to_string();
+            let created_at = path
+                .metadata()
+                .and_then(|m| m.modified())
+                .ok()
+                .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+                .map(|d| d.as_secs().to_string())
+                .unwrap_or_else(|| "0".to_string());
+            let label = filename
+                .strip_suffix(".db")
+                .and_then(|stem| stem.splitn(2, '-').nth(1))
+                .map(|s| s.to_string());
+            Some(SnapshotInfo {
+                filename,
+                created_at,
+                label,
+            })
+        })
+        .collect();
+
+    Ok(Json(snapshots))
+}
+
+pub async fn activate_snapshot(
+    State(db): State<Db>,
+    Json(input): Json<ActivateSnapshot>,
+) -> Result<Json<ActiveSnapshot>, StatusCode> {
+    if input.filename.contains('/') || input.filename.contains('\\') {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let candidate = PathBuf::from(crate::db::SNAPSHOT_DIR).join(&input.filename);
+    if !candidate.exists() || !candidate.is_file() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    db.set_active_db_path(candidate).await;
+
+    Ok(Json(ActiveSnapshot {
+        filename: Some(input.filename),
+        label: None,
+        created_at: None,
+    }))
+}
+
+pub async fn reset_snapshot(State(db): State<Db>) -> Result<Json<ActiveSnapshot>, StatusCode> {
+    db.reset_active_db_path().await;
+    Ok(Json(ActiveSnapshot {
+        filename: None,
+        label: None,
+        created_at: None,
+    }))
+}
+
+fn snapshot_path(filename: &str) -> Option<PathBuf> {
+    if filename.contains('/') || filename.contains('\\') {
+        return None;
+    }
+    let path = PathBuf::from(crate::db::SNAPSHOT_DIR).join(filename);
+    Some(path)
+}
+
+pub async fn delete_snapshot(State(db): State<Db>, Path(filename): Path<String>) -> StatusCode {
+    let path = match snapshot_path(&filename) {
+        Some(p) => p,
+        None => return StatusCode::BAD_REQUEST,
+    };
+
+    if !path.exists() || !path.is_file() {
+        return StatusCode::NOT_FOUND;
+    }
+
+    let active_filename = db.active_db_path().await.file_name().and_then(|s| s.to_str()).map(|s| s.to_string());
+    if let Err(_) = std::fs::remove_file(&path) {
+        return StatusCode::INTERNAL_SERVER_ERROR;
+    }
+
+    if active_filename.as_deref() == Some(&filename) {
+        db.reset_active_db_path().await;
+    }
+
+    StatusCode::NO_CONTENT
+}
+
+pub async fn rename_snapshot(
+    State(_db): State<Db>,
+    Path(filename): Path<String>,
+    Json(input): Json<RenameSnapshot>,
+) -> Result<Json<SnapshotInfo>, StatusCode> {
+    let src = snapshot_path(&filename).ok_or(StatusCode::BAD_REQUEST)?;
+    if !src.exists() || !src.is_file() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    let timestamp = filename
+        .strip_suffix(".db")
+        .and_then(|s| s.splitn(2, '-').next())
+        .unwrap_or("");
+
+    let label = input.label.trim();
+    let sanitized = label
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect::<String>();
+
+    let newname = if sanitized.is_empty() {
+        format!("{}.db", timestamp)
+    } else {
+        format!("{}-{}.db", timestamp, sanitized)
+    };
+
+    let dst = snapshot_path(&newname).ok_or(StatusCode::BAD_REQUEST)?;
+    if dst.exists() {
+        return Err(StatusCode::CONFLICT);
+    }
+
+    std::fs::rename(&src, &dst).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let created_at = dst
+        .metadata()
+        .and_then(|m| m.modified())
+        .ok()
+        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_else(|| "0".to_string());
+
+    Ok(Json(SnapshotInfo {
+        filename: newname,
+        created_at,
+        label: if sanitized.is_empty() { None } else { Some(sanitized) },
+    }))
+}
+
+pub async fn get_active_snapshot(State(db): State<Db>) -> Result<Json<ActiveSnapshot>, StatusCode> {
+    if db.is_default_path().await {
+        Ok(Json(ActiveSnapshot { filename: None, label: None, created_at: None }))
+    } else {
+        let active = db.active_db_path().await;
+        let filename = active.file_name().and_then(|s| s.to_str()).map(|s| s.to_string());
+        let label = filename
+            .as_ref()
+            .and_then(|name| name.strip_suffix(".db"))
+            .and_then(|stem| stem.splitn(2, '-').nth(1))
+            .map(|s| s.to_string());
+
+        let created_at = active
+            .metadata()
+            .ok()
+            .and_then(|m| m.modified().ok())
+            .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+            .map(|d| d.as_secs().to_string());
+
+        Ok(Json(ActiveSnapshot {
+            filename,
+            label,
+            created_at,
+        }))
+    }
+}
+
 // --- Cashflow (Sankey Data) ---
 
 pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     let mut stmt = db
         .prepare("SELECT id, name, amount, item_type, frequency, primary_tag FROM budget_items")
@@ -606,7 +829,7 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
 // --- Upcoming Bills ---
 
 pub async fn get_upcoming_bills(State(db): State<Db>) -> Result<Json<Vec<UpcomingBill>>, StatusCode> {
-    let db = db.lock().await;
+    let db = get_db_conn(&db).await?;
 
     let mut stmt = db
         .prepare(

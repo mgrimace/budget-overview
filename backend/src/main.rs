@@ -16,7 +16,7 @@ async fn main() {
         std::fs::create_dir_all(dir).expect("Failed to create data directory");
         "data/budget.db".to_string()
     });
-    let db = db::init_db(&db_path);
+    let db = db::init_db(Some(&db_path));
 
     let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "../frontend/dist".to_string());
 
@@ -45,6 +45,11 @@ async fn main() {
         )
         .route("/api/cashflow", get(handlers::get_cashflow))
         .route("/api/upcoming-bills", get(handlers::get_upcoming_bills))
+        .route("/api/snapshots", get(handlers::list_snapshots).post(handlers::create_snapshot))
+        .route("/api/snapshots/:filename", axum::routing::delete(handlers::delete_snapshot).put(handlers::rename_snapshot))
+        .route("/api/snapshots/activate", axum::routing::post(handlers::activate_snapshot))
+        .route("/api/snapshots/reset", axum::routing::post(handlers::reset_snapshot))
+        .route("/api/snapshots/active", get(handlers::get_active_snapshot))
         .with_state(db)
         .fallback_service(
             ServeDir::new(&static_dir)

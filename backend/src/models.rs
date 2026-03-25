@@ -57,6 +57,35 @@ pub struct RenameTag {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct CreateSnapshot {
+    pub label: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ActivateSnapshot {
+    pub filename: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RenameSnapshot {
+    pub label: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SnapshotInfo {
+    pub filename: String,
+    pub created_at: String,
+    pub label: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ActiveSnapshot {
+    pub filename: Option<String>,
+    pub label: Option<String>,
+    pub created_at: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SankeyData {
     pub nodes: Vec<SankeyNode>,
     pub links: Vec<SankeyLink>,

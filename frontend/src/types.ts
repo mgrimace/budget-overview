@@ -47,3 +47,15 @@ export interface UpcomingBill {
   tags: string[];
   is_variable: boolean;
 }
+
+export interface SnapshotInfo {
+  filename: string;
+  created_at: string;
+  label?: string;
+}
+
+export interface ActiveSnapshot {
+  filename?: string;
+  label?: string;
+  created_at?: string;
+}
