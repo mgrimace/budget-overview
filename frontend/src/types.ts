@@ -9,6 +9,7 @@ export interface BudgetItem {
   notes?: string;
   variable_amounts?: VariableAmount[];
   monthly_amount: number;
+  primary_tag: string;
   created_at: string;
 }
 
@@ -21,6 +22,7 @@ export interface CreateBudgetItem {
   tags?: string[];
   notes?: string;
   variable_amounts?: VariableAmount[];
+  primary_tag: string;
 }
 
 export interface VariableAmount {

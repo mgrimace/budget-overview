@@ -18,7 +18,7 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
   const [dayOfMonth, setDayOfMonth] = useState<number | ''>(item?.day_of_month ?? '');
 
   const initialTags = item?.tags ?? [];
-  const initialPrimaryTag = initialTags[0] ?? '';
+  const initialPrimaryTag = item?.primary_tag ?? '';
   const [primaryTag, setPrimaryTag] = useState<string>(initialPrimaryTag);
   const [additionalTags, setAdditionalTags] = useState<string[]>(
     initialTags.filter((t) => t !== initialPrimaryTag),
@@ -59,6 +59,7 @@ export default function BudgetItemForm({ item, onSave, onCancel }: Props) {
       day_of_month: dayOfMonth === '' ? undefined : dayOfMonth,
       tags: tagsToSave.length > 0 ? tagsToSave : undefined,
       notes: notes || undefined,
+      primary_tag: primaryTag,
       variable_amounts: isVariable
         ? variableAmounts
             .map((amt, i) => ({ month: i + 1, amount: amt }))

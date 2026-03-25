@@ -8,7 +8,7 @@ use std::collections::{HashMap, HashSet};
 use crate::db::Db;
 use crate::models::*;
 
-type BudgetItemRow = (i64, String, f64, String, String, Option<i32>, Option<String>, String);
+type BudgetItemRow = (i64, String, f64, String, String, Option<i32>, Option<String>, String, String);
 
 // --- Normalization ---
 
@@ -72,6 +72,7 @@ fn build_budget_item(
     frequency: String,
     day_of_month: Option<i32>,
     notes: Option<String>,
+    primary_tag: String,
     created_at: String,
 ) -> BudgetItem {
     let tags = get_item_tags(conn, id);
@@ -96,44 +97,23 @@ fn build_budget_item(
             Some(variable_amounts)
         },
         monthly_amount,
+        primary_tag,
         created_at,
     }
-}
-
-fn normalize_tag_order(tags: &Option<Vec<String>>) -> Option<Vec<String>> {
-    tags.as_ref().map(|tags| {
-        let mut ordered = Vec::new();
-        let mut seen = HashSet::new();
-
-        for tag in tags {
-            if seen.insert(tag.clone()) {
-                ordered.push(tag.clone());
-            }
-        }
-
-        if ordered.is_empty() {
-            ordered
-        } else {
-            let primary = ordered[0].clone();
-            let mut reordered = vec![primary.clone()];
-            for tag in ordered.into_iter().skip(1) {
-                if tag != primary {
-                    reordered.push(tag);
-                }
-            }
-            reordered
-        }
-    })
 }
 
 fn save_tags(conn: &rusqlite::Connection, item_id: i64, tags: &Option<Vec<String>>) {
     if let Some(ref tags) = tags {
         for tag_name in tags {
-            conn.execute("INSERT OR IGNORE INTO tags (name) VALUES (?1)", [tag_name])
+            let tag = tag_name.trim();
+            if tag.is_empty() {
+                continue;
+            }
+            conn.execute("INSERT OR IGNORE INTO tags (name) VALUES (?1)", [tag])
                 .ok();
             if let Ok(tag_id) = conn.query_row(
                 "SELECT id FROM tags WHERE name = ?1",
-                [tag_name],
+                [tag],
                 |row| row.get::<_, i64>(0),
             ) {
                 conn.execute(
@@ -169,7 +149,7 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
 
     let mut stmt = db
         .prepare(
-            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, created_at \
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at \
              FROM budget_items ORDER BY created_at DESC",
         )
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -184,6 +164,7 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
                 row.get::<_, Option<i32>>(5)?,
                 row.get::<_, Option<String>>(6)?,
                 row.get::<_, String>(7)?,
+                row.get::<_, String>(8)?,
             ))
         })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -194,8 +175,8 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
     let result = items
         .into_iter()
         .map(
-            |(id, name, amount, item_type, frequency, day_of_month, notes, created_at)| {
-                build_budget_item(&db, id, name, amount, item_type, frequency, day_of_month, notes, created_at)
+            |(id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at)| {
+                build_budget_item(&db, id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at)
             },
         )
         .collect();
@@ -209,23 +190,33 @@ pub async fn create_budget_item(
 ) -> Result<(StatusCode, Json<BudgetItem>), StatusCode> {
     let db = db.lock().await;
 
+    if input.primary_tag.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let mut tags = input.tags.clone().unwrap_or_default();
+    if !tags.contains(&input.primary_tag) {
+        tags.push(input.primary_tag.clone());
+    }
+
     db.execute(
-        "INSERT INTO budget_items (name, amount, item_type, frequency, day_of_month, notes) \
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        "INSERT INTO budget_items (name, amount, item_type, frequency, day_of_month, notes, primary_tag) \
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
         rusqlite::params![
             input.name,
             input.amount,
             input.item_type,
             input.frequency,
             input.day_of_month,
-            input.notes
+            input.notes,
+            input.primary_tag,
         ],
     )
     .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let id = db.last_insert_rowid();
-    let normalized_tags = normalize_tag_order(&input.tags);
-    save_tags(&db, id, &normalized_tags);
+    let tags_option = Some(tags);
+    save_tags(&db, id, &tags_option);
     save_variable_amounts(&db, id, &input.variable_amounts);
 
     let created_at = db
@@ -245,6 +236,7 @@ pub async fn create_budget_item(
         input.frequency,
         input.day_of_month,
         input.notes,
+        input.primary_tag,
         created_at,
     );
 
@@ -257,9 +249,9 @@ pub async fn get_budget_item(
 ) -> Result<Json<BudgetItem>, StatusCode> {
     let db = db.lock().await;
 
-    let (id, name, amount, item_type, frequency, day_of_month, notes, created_at): BudgetItemRow =
+    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at): BudgetItemRow =
         db.query_row(
-            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, created_at \
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at \
              FROM budget_items WHERE id = ?1",
             [id],
             |row| {
@@ -272,6 +264,7 @@ pub async fn get_budget_item(
                     row.get::<_, Option<i32>>(5)?,
                     row.get::<_, Option<String>>(6)?,
                     row.get::<_, String>(7)?,
+                    row.get::<_, String>(8)?,
                 ))
             },
         )
@@ -286,6 +279,7 @@ pub async fn get_budget_item(
         frequency,
         day_of_month,
         notes,
+        primary_tag,
         created_at,
     )))
 }
@@ -300,7 +294,7 @@ pub async fn update_budget_item(
     let changes = db
         .execute(
             "UPDATE budget_items SET name=?1, amount=?2, item_type=?3, frequency=?4, \
-             day_of_month=?5, notes=?6 WHERE id=?7",
+             day_of_month=?5, notes=?6, primary_tag=?7 WHERE id=?8",
             rusqlite::params![
                 input.name,
                 input.amount,
@@ -308,6 +302,7 @@ pub async fn update_budget_item(
                 input.frequency,
                 input.day_of_month,
                 input.notes,
+                input.primary_tag,
                 id
             ],
         )
@@ -317,10 +312,19 @@ pub async fn update_budget_item(
         return Err(StatusCode::NOT_FOUND);
     }
 
+    if input.primary_tag.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let mut tags = input.tags.clone().unwrap_or_default();
+    if !tags.contains(&input.primary_tag) {
+        tags.push(input.primary_tag.clone());
+    }
+
     db.execute("DELETE FROM budget_item_tags WHERE budget_item_id = ?1", [id])
         .ok();
-    let normalized_tags = normalize_tag_order(&input.tags);
-    save_tags(&db, id, &normalized_tags);
+    let tags_option = Some(tags);
+    save_tags(&db, id, &tags_option);
 
     db.execute("DELETE FROM variable_amounts WHERE budget_item_id = ?1", [id])
         .ok();
@@ -343,6 +347,7 @@ pub async fn update_budget_item(
         input.frequency,
         input.day_of_month,
         input.notes,
+        input.primary_tag,
         created_at,
     )))
 }
@@ -420,15 +425,16 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
     let db = db.lock().await;
 
     let mut stmt = db
-        .prepare("SELECT id, name, amount, item_type, frequency FROM budget_items")
+        .prepare("SELECT id, name, amount, item_type, frequency, primary_tag FROM budget_items")
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let items: Vec<(i64, String, f64, String, String)> = stmt.query_map([], |row| {
+    let items: Vec<(i64, String, f64, String, String, String)> = stmt.query_map([], |row| {
         Ok((
             row.get::<_, i64>(0)?,
             row.get::<_, String>(1)?,
             row.get::<_, f64>(2)?,
             row.get::<_, String>(3)?,
             row.get::<_, String>(4)?,
+            row.get::<_, String>(5)?,
         ))
     })
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -442,7 +448,7 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
     let mut expense_by_tag: HashMap<String, f64> = HashMap::new();
     let mut node_ids: HashSet<String> = HashSet::new();
 
-    for (id, name, amount, item_type, frequency) in &items {
+    for (id, name, amount, item_type, frequency, primary_tag) in &items {
         let var_amounts = get_variable_amounts(&db, *id);
         let monthly = if !var_amounts.is_empty() {
             average_variable_amounts(&var_amounts)
@@ -461,8 +467,11 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
             });
             income_total += monthly;
         } else {
-            let tags = get_item_tags(&db, *id);
-            let tag = tags.first().cloned().unwrap_or_else(|| "Misc".to_string());
+            let tag = if primary_tag.is_empty() {
+                "Uncategorized".to_string()
+            } else {
+                primary_tag.clone()
+            };
             *expense_by_tag.entry(tag).or_insert(0.0) += monthly;
         }
     }

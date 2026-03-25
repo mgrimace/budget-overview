@@ -83,7 +83,7 @@ export default function BudgetItems() {
             {item.tags.length > 0 && (
               <div className="item-tags">
                 {item.tags.map((tag, index) => (
-                  <span key={`${item.id}-${tag}`} className={`tag-badge ${index === 0 ? 'selected' : ''}`}>
+                  <span key={`${item.id}-${tag}`} className={`tag-badge ${tag === item.primary_tag ? 'selected' : ''}`}>
                     {tag}
                   </span>
                 ))}

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS budget_items (
     frequency TEXT NOT NULL CHECK(frequency IN ('daily', 'weekly', 'biweekly', 'monthly', 'yearly')),
     day_of_month INTEGER,
     notes TEXT,
+    primary_tag TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
