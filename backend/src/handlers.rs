@@ -573,7 +573,7 @@ pub async fn list_snapshots(State(_): State<Db>) -> Result<Json<Vec<SnapshotInfo
                 .unwrap_or_else(|| "0".to_string());
             let label = filename
                 .strip_suffix(".db")
-                .and_then(|stem| stem.splitn(2, '-').nth(1))
+                .and_then(|stem| stem.split_once('-').map(|x| x.1.to_string()))
                 .map(|s| s.to_string());
             Some(SnapshotInfo {
                 filename,
@@ -636,7 +636,7 @@ pub async fn delete_snapshot(State(db): State<Db>, Path(filename): Path<String>)
     }
 
     let active_filename = db.active_db_path().await.file_name().and_then(|s| s.to_str()).map(|s| s.to_string());
-    if let Err(_) = std::fs::remove_file(&path) {
+    if std::fs::remove_file(&path).is_err() {
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
 
@@ -659,7 +659,7 @@ pub async fn rename_snapshot(
 
     let timestamp = filename
         .strip_suffix(".db")
-        .and_then(|s| s.splitn(2, '-').next())
+        .and_then(|s| s.split('-').next())
         .unwrap_or("");
 
     let label = input.label.trim();
@@ -705,7 +705,7 @@ pub async fn get_active_snapshot(State(db): State<Db>) -> Result<Json<ActiveSnap
         let label = filename
             .as_ref()
             .and_then(|name| name.strip_suffix(".db"))
-            .and_then(|stem| stem.splitn(2, '-').nth(1))
+            .and_then(|stem| stem.split_once('-').map(|x| x.1.to_string()))
             .map(|s| s.to_string());
 
         let created_at = active

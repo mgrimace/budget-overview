@@ -92,13 +92,8 @@ pub fn init_db(path: Option<&str>) -> Db {
     fs::create_dir_all(db_dir).expect("Failed to create data directory");
     fs::create_dir_all(SNAPSHOT_DIR).expect("Failed to create snapshots directory");
 
-    if !Path::new(db_path).exists() {
-        let conn = Connection::open(db_path).expect("Failed to open database");
-        initialize_schema(&conn);
-    } else {
-        let conn = Connection::open(db_path).expect("Failed to open database");
-        initialize_schema(&conn);
-    }
+    let conn = Connection::open(db_path).expect("Failed to open database");
+    initialize_schema(&conn);
 
     let default_db_path = fs::canonicalize(db_path).unwrap_or_else(|_| PathBuf::from(db_path));
 
