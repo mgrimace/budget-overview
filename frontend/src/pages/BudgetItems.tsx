@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { fetchBudgetItems, deleteBudgetItem, updateBudgetItemPrimaryTag } from '../api';
+import { fetchBudgetItems, deleteBudgetItem, updateBudgetItemPrimaryTag, updateItemVisibility } from '../api';
 import type { BudgetItem } from '../types';
 import BudgetItemForm from '../components/BudgetItemForm';
-import { PlusIcon, TrashIcon, PencilSimpleIcon, FunnelSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
+import { EyeIcon, EyeSlashIcon, PlusIcon, TrashIcon, PencilSimpleIcon, FunnelSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 
 export default function BudgetItems() {
   const [items, setItems] = useState<BudgetItem[]>([]);
@@ -18,6 +18,11 @@ export default function BudgetItems() {
 
   const handleDelete = async (id: number) => {
     await deleteBudgetItem(id);
+    load();
+  };
+
+  const toggleVisibility = async (id: number, visible: boolean) => {
+    await updateItemVisibility(id, !visible);
     load();
   };
 
@@ -115,7 +120,7 @@ export default function BudgetItems() {
 
       <div className="items-grid">
         {visibleItems.map((item) => (
-          <div key={item.id} className={`item-card ${item.item_type}`}>
+          <div key={item.id} className={`item-card ${item.item_type} ${item.visible ? '' : 'item-card-hidden'}`}>
             <div className="item-card-header">
               <span className="item-name">{item.name}</span>
               <span className={`item-amount ${item.item_type}`}>
@@ -151,6 +156,13 @@ export default function BudgetItems() {
             )}
             {item.notes && <p className="item-notes">{item.notes}</p>}
             <div className="item-actions">
+              <button
+                className="btn-icon"
+                onClick={() => toggleVisibility(item.id, item.visible)}
+                title={item.visible ? 'Hide from Sankey' : 'Show in Sankey'}
+              >
+                {item.visible ? <EyeIcon size={18} /> : <EyeSlashIcon size={18} />}
+              </button>
               <button
                 className="btn-icon"
                 onClick={() => {

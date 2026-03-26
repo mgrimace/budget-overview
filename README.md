@@ -87,6 +87,7 @@ Open `http://localhost:3001`. Data persists to `./data/budget.db`.
 | GET | /api/cashflow | Get Sankey diagram data |
 | GET | /api/upcoming-bills | Get upcoming bills |
 | PATCH | /api/budget-items/:id/primary-tag | Set a budget item primary tag (adds to tags if needed) |
+| PATCH | /api/budget-items/:id/visibility | Set a budget item visibility (true=show in Sankey, false=hide) |
 
 ## Normalization
 

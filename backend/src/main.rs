@@ -36,6 +36,10 @@ async fn main() {
             axum::routing::patch(handlers::update_budget_item_primary_tag),
         )
         .route(
+            "/api/budget-items/:id/visibility",
+            axum::routing::patch(handlers::update_budget_item_visibility),
+        )
+        .route(
             "/api/tags",
             get(handlers::list_tags).post(handlers::create_tag),
         )

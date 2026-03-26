@@ -38,6 +38,15 @@ export async function updateBudgetItemPrimaryTag(id: number, primary_tag: string
   return res.json();
 }
 
+export async function updateItemVisibility(id: number, visible: boolean): Promise<BudgetItem> {
+  const res = await fetch(`${API}/budget-items/${id}/visibility`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visible }),
+  });
+  return res.json();
+}
+
 export async function fetchTags(): Promise<Tag[]> {
   const res = await fetch(`${API}/tags`);
   return res.json();

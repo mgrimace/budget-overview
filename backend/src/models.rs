@@ -13,6 +13,7 @@ pub struct BudgetItem {
     pub variable_amounts: Option<Vec<VariableAmount>>,
     pub monthly_amount: f64,
     pub primary_tag: String,
+    pub visible: bool,
     pub created_at: String,
 }
 
@@ -32,6 +33,11 @@ pub struct CreateBudgetItem {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UpdatePrimaryTag {
     pub primary_tag: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UpdateVisibility {
+    pub visible: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
