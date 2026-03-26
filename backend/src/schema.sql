@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS budget_items (
     day_of_month INTEGER,
     notes TEXT,
     primary_tag TEXT NOT NULL DEFAULT '',
+    visible INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

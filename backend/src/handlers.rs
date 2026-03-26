@@ -9,7 +9,7 @@ use std::{collections::{HashMap, HashSet}, fs, path::PathBuf, time::{SystemTime,
 use crate::db::Db;
 use crate::models::*;
 
-type BudgetItemRow = (i64, String, f64, String, String, Option<i32>, Option<String>, String, String);
+type BudgetItemRow = (i64, String, f64, String, String, Option<i32>, Option<String>, String, bool, String);
 
 // --- Normalization ---
 
@@ -74,6 +74,7 @@ fn build_budget_item(
     day_of_month: Option<i32>,
     notes: Option<String>,
     primary_tag: String,
+    visible: bool,
     created_at: String,
 ) -> BudgetItem {
     let tags = get_item_tags(conn, id);
@@ -99,6 +100,7 @@ fn build_budget_item(
         },
         monthly_amount,
         primary_tag,
+        visible,
         created_at,
     }
 }
@@ -156,7 +158,7 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
 
     let mut stmt = db
         .prepare(
-            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at \
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at \
              FROM budget_items ORDER BY created_at DESC",
         )
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -171,7 +173,8 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
                 row.get::<_, Option<i32>>(5)?,
                 row.get::<_, Option<String>>(6)?,
                 row.get::<_, String>(7)?,
-                row.get::<_, String>(8)?,
+                row.get::<_, bool>(8)?,
+                row.get::<_, String>(9)?,
             ))
         })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -182,8 +185,8 @@ pub async fn list_budget_items(State(db): State<Db>) -> Result<Json<Vec<BudgetIt
     let result = items
         .into_iter()
         .map(
-            |(id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at)| {
-                build_budget_item(&db, id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at)
+            |(id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at)| {
+                build_budget_item(&db, id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at)
             },
         )
         .collect();
@@ -244,6 +247,7 @@ pub async fn create_budget_item(
         input.day_of_month,
         input.notes,
         input.primary_tag,
+        true,
         created_at,
     );
 
@@ -256,9 +260,9 @@ pub async fn get_budget_item(
 ) -> Result<Json<BudgetItem>, StatusCode> {
     let db = get_db_conn(&db).await?;
 
-    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at): BudgetItemRow =
+    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at): BudgetItemRow =
         db.query_row(
-            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at \
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at \
              FROM budget_items WHERE id = ?1",
             [id],
             |row| {
@@ -271,7 +275,8 @@ pub async fn get_budget_item(
                     row.get::<_, Option<i32>>(5)?,
                     row.get::<_, Option<String>>(6)?,
                     row.get::<_, String>(7)?,
-                    row.get::<_, String>(8)?,
+                    row.get::<_, bool>(8)?,
+                    row.get::<_, String>(9)?,
                 ))
             },
         )
@@ -287,6 +292,7 @@ pub async fn get_budget_item(
         day_of_month,
         notes,
         primary_tag,
+        visible,
         created_at,
     )))
 }
@@ -337,13 +343,13 @@ pub async fn update_budget_item(
         .ok();
     save_variable_amounts(&db, id, &input.variable_amounts);
 
-    let created_at = db
+    let (created_at, visible): (String, bool) = db
         .query_row(
-            "SELECT created_at FROM budget_items WHERE id = ?1",
+            "SELECT created_at, visible FROM budget_items WHERE id = ?1",
             [id],
-            |row| row.get::<_, String>(0),
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, bool>(1)?)),
         )
-        .unwrap_or_default();
+        .unwrap_or_else(|_| (String::new(), true));
 
     Ok(Json(build_budget_item(
         &db,
@@ -355,6 +361,7 @@ pub async fn update_budget_item(
         input.day_of_month,
         input.notes,
         input.primary_tag,
+        visible,
         created_at,
     )))
 }
@@ -405,9 +412,9 @@ pub async fn update_budget_item_primary_tag(
     )
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag_val, created_at): BudgetItemRow =
+    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag_val, visible, created_at): BudgetItemRow =
         db.query_row(
-            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, created_at FROM budget_items WHERE id = ?1",
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at FROM budget_items WHERE id = ?1",
             [id],
             |row| {
                 Ok((
@@ -419,7 +426,8 @@ pub async fn update_budget_item_primary_tag(
                     row.get::<_, Option<i32>>(5)?,
                     row.get::<_, Option<String>>(6)?,
                     row.get::<_, String>(7)?,
-                    row.get::<_, String>(8)?,
+                    row.get::<_, bool>(8)?,
+                    row.get::<_, String>(9)?,
                 ))
             },
         )
@@ -435,6 +443,61 @@ pub async fn update_budget_item_primary_tag(
         day_of_month,
         notes,
         primary_tag_val,
+        visible,
+        created_at,
+    )))
+}
+
+pub async fn update_budget_item_visibility(
+    State(db): State<Db>,
+    Path(id): Path<i64>,
+    Json(input): Json<UpdateVisibility>,
+) -> Result<Json<BudgetItem>, StatusCode> {
+    let db = get_db_conn(&db).await?;
+
+    let changes = db
+        .execute(
+            "UPDATE budget_items SET visible = ?1 WHERE id = ?2",
+            rusqlite::params![input.visible, id],
+        )
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if changes == 0 {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    let (id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at): BudgetItemRow =
+        db.query_row(
+            "SELECT id, name, amount, item_type, frequency, day_of_month, notes, primary_tag, visible, created_at FROM budget_items WHERE id = ?1",
+            [id],
+            |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, f64>(2)?,
+                    row.get::<_, String>(3)?,
+                    row.get::<_, String>(4)?,
+                    row.get::<_, Option<i32>>(5)?,
+                    row.get::<_, Option<String>>(6)?,
+                    row.get::<_, String>(7)?,
+                    row.get::<_, bool>(8)?,
+                    row.get::<_, String>(9)?,
+                ))
+            },
+        )
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(build_budget_item(
+        &db,
+        id,
+        name,
+        amount,
+        item_type,
+        frequency,
+        day_of_month,
+        notes,
+        primary_tag,
+        visible,
         created_at,
     )))
 }
@@ -729,7 +792,7 @@ pub async fn get_cashflow(State(db): State<Db>) -> Result<Json<SankeyData>, Stat
     let db = get_db_conn(&db).await?;
 
     let mut stmt = db
-        .prepare("SELECT id, name, amount, item_type, frequency, primary_tag FROM budget_items")
+        .prepare("SELECT id, name, amount, item_type, frequency, primary_tag FROM budget_items WHERE visible = 1")
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     let items: Vec<(i64, String, f64, String, String, String)> = stmt.query_map([], |row| {
         Ok((

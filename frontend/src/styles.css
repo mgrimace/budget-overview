@@ -501,6 +501,11 @@ body {
   border-left-color: var(--color-negative);
 }
 
+.item-card-hidden {
+  opacity: 0.5;
+  color: var(--color-text-muted);
+}
+
 .item-card-header {
   display: flex;
   justify-content: space-between;

@@ -10,6 +10,7 @@ export interface BudgetItem {
   variable_amounts?: VariableAmount[];
   monthly_amount: number;
   primary_tag: string;
+  visible: boolean;
   created_at: string;
 }
 

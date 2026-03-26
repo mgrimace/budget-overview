@@ -53,6 +53,10 @@ fn initialize_schema(conn: &Connection) {
     )
     .ok();
     conn.execute_batch(
+        "ALTER TABLE budget_items ADD COLUMN visible INTEGER NOT NULL DEFAULT 1",
+    )
+    .ok();
+    conn.execute_batch(
         "UPDATE budget_items
         SET primary_tag = (
             SELECT t.name FROM tags t
