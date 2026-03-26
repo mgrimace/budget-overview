@@ -561,35 +561,79 @@ body {
    SNAPSHOTS
    ============================================================ */
 
+.snapshot-helper-text {
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  margin-bottom: var(--space-4);
+}
+
+.snapshot-create-form {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.snapshot-create-form input {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-base);
+}
+
+.snapshot-input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--space-11);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-base);
+  line-height: var(--space-11);
+  padding: 0;
+}
+
+.snapshot-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+ 
+.summary-card.active {
+  border: 2px solid var(--color-accent);
+}
+ 
 .snapshot-footer-row {
-  position: relative;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  margin: 0;
-  min-height: var(--input-min-height);
+  margin-top: var(--space-4);
+  gap: var(--space-2);
 }
-
-.snapshot-footer-row .snapshot-activate-btn {
-  margin: 0 auto;
-  z-index: 1;
+ 
+.snapshot-activate-btn {
+  grid-column: 2;
 }
-
+ 
 .snapshot-footer-icons {
-  position: absolute;
-  right: var(--space-2);
-  top: 50%;
-  transform: translateY(-50%);
+  grid-column: 3;
   display: flex;
-  gap: 0.06rem;
-  z-index: 2;
+  justify-content: flex-end;
+  gap: var(--space-1);
 }
-
-.snapshot-footer-icons .btn-icon {
-  min-width: auto;
-  width: 30px;
-  height: 30px;
-  padding: 0.2rem;
+ 
+.snapshot-viewing {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
 }
 
 .snapshot-banner {
@@ -614,29 +658,6 @@ body {
   font-weight: 700;
   font-size: var(--font-xs);
   white-space: nowrap;
-}
-
-.snapshot-helper-text {
-  margin-top: var(--space-2);
-  margin-bottom: var(--space-4);
-  color: var(--color-text-muted);
-  font-size: var(--font-sm);
-  max-width: 680px;
-  line-height: 1.4;
-}
-
-.snapshots-controls {
-  justify-content: flex-start;
-  margin-top: var(--space-2);
-}
-
-.snapshots-controls .input-with-icon {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-
-.snapshots-controls .input-with-icon input {
-  background: transparent;
 }
 
 /* ============================================================
@@ -1208,21 +1229,10 @@ body {
     padding: var(--space-4);
   }
 
-  .snapshot-footer-row {
-    flex-wrap: wrap;
-    justify-content: center;
+  .snapshot-cards {
+    display: grid;
+    grid-template-columns: 1fr;
     gap: var(--space-2);
-  }
-
-  .snapshot-footer-row .snapshot-activate-btn {
-    margin: 0 auto;
-  }
-
-  .snapshot-footer-icons {
-    position: static;
-    margin: var(--space-1) 0 0;
-    width: 100%;
-    justify-content: center;
   }
 
   .snapshot-warning-badge span {

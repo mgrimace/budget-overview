@@ -67,7 +67,7 @@ export default function Snapshots() {
         <h1>Snapshots</h1>
       </div>
       <p className="snapshot-helper-text">Create a snapshot to save your current values before changing or updating them for a new year. This lets you easily revisit previous bills.</p>
-      <form className="tag-create-form" onSubmit={(e) => { e.preventDefault(); handleCreateSnapshot(); }}>
+      <form className="snapshot-create-form" onSubmit={(e) => { e.preventDefault(); handleCreateSnapshot(); }}>
         <input
           type="text"
           value={label}
@@ -79,18 +79,22 @@ export default function Snapshots() {
         </button>
       </form>
 
-      <p className="summary-value">
+      <p className="snapshot-viewing">
         Viewing: <strong>{active.filename ? activeLabel : 'Current'}</strong>
       </p>
 
-      <div className="summary-cards" style={{ gap: '8px', marginTop: '12px' }}>
+      <div className="snapshot-cards">
 
         <div className={`summary-card ${!active.filename ? 'active' : ''}`}>
           <h3>Current database</h3>
           <p>The active database</p>
-          <button className="btn btn-primary" onClick={handleReset} disabled={isLoading || !active.filename}>
-            Return to Current
-          </button>
+          <div className="snapshot-footer-row">
+            <div />
+            <button className="btn btn-primary" onClick={handleReset} disabled={isLoading || !active.filename}>
+              Return to Current
+            </button>
+            <div />
+          </div>
         </div>
 
         {snapshots.length === 0 && <div className="empty-state">No snapshots yet.</div>}
@@ -108,7 +112,7 @@ export default function Snapshots() {
                     value={editingLabel}
                     onChange={(e) => setEditingLabel(e.target.value)}
                     placeholder="Snapshot label"
-                    className="page-header-search"
+                    className="snapshot-input"
                   />
                 </div>
               ) : (
