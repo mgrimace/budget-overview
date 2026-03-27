@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { fetchBudgetItems, fetchTags } from '../api';
 import type { BudgetItem, Tag } from '../types';
 
@@ -7,11 +8,19 @@ export default function Summary() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'monthly' | 'yearly'>('monthly');
+  const location = useLocation();
 
   useEffect(() => {
     fetchBudgetItems().then(setItems);
     fetchTags().then(setTags);
   }, []);
+
+  useEffect(() => {
+    const q = new URLSearchParams(location.search).get('tag');
+    if (q) {
+      setSelectedTags([q]);
+    }
+  }, [location.search]);
 
   const filtered =
     selectedTags.length > 0

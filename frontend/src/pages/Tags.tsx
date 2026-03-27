@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchTags, createTag, renameTag, deleteTag } from '../api';
 import type { Tag } from '../types';
 import { PlusIcon, TrashIcon, PencilSimpleIcon, CheckIcon, XIcon } from '@phosphor-icons/react';
@@ -8,6 +9,7 @@ export default function Tags() {
   const [newTagName, setNewTagName] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
+  const navigate = useNavigate();
 
   const load = () => fetchTags().then(setTags);
   useEffect(() => {
@@ -51,42 +53,82 @@ export default function Tags() {
       </form>
 
       <div className="tags-grid">
-        {tags.map((tag) => (
-          <div key={tag.id} className="tag-pill">
-            {editingId === tag.id ? (
-              <>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  autoFocus
-                />
-                <button className="btn-icon" onClick={() => handleRename(tag.id)}>
-                  <CheckIcon size={18} />
-                </button>
-                <button className="btn-icon" onClick={() => setEditingId(null)}>
-                  <XIcon size={18} />
-                </button>
-              </>
-            ) : (
-              <>
-                <span className="tag-name">{tag.name}</span>
-                <button
-                  className="btn-icon"
-                  onClick={() => {
-                    setEditingId(tag.id);
-                    setEditName(tag.name);
-                  }}
-                >
-                  <PencilSimpleIcon size={18} />
-                </button>
-                <button className="btn-icon danger" onClick={() => handleDelete(tag.id)}>
-                  <TrashIcon size={18} />
-                </button>
-              </>
-            )}
-          </div>
-        ))}
+        {tags.map((tag) => {
+          const isEditing = editingId === tag.id;
+          const handleNavigateTag = () => {
+            if (!isEditing) {
+              navigate(`/summary?tag=${encodeURIComponent(tag.name)}`);
+            }
+          };
+
+          return (
+            <div
+              key={tag.id}
+              className={`tag-pill ${isEditing ? '' : 'clickable'}`}
+              onClick={handleNavigateTag}
+              role={isEditing ? undefined : 'button'}
+              tabIndex={isEditing ? undefined : 0}
+              onKeyDown={(e) => {
+                if (!isEditing && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  handleNavigateTag();
+                }
+              }}
+            >
+              {isEditing ? (
+                <>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    autoFocus
+                  />
+                  <button
+                    className="btn-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRename(tag.id);
+                    }}
+                  >
+                    <CheckIcon size={18} />
+                  </button>
+                  <button
+                    className="btn-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingId(null);
+                    }}
+                  >
+                    <XIcon size={18} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="tag-name">{tag.name}</span>
+                  <button
+                    className="btn-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingId(tag.id);
+                      setEditName(tag.name);
+                    }}
+                  >
+                    <PencilSimpleIcon size={18} />
+                  </button>
+                  <button
+                    className="btn-icon danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(tag.id);
+                    }}
+                  >
+                    <TrashIcon size={18} />
+                  </button>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
