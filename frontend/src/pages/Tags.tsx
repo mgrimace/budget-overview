@@ -50,9 +50,9 @@ export default function Tags() {
         </button>
       </form>
 
-      <div className="tags-list">
+      <div className="tags-grid">
         {tags.map((tag) => (
-          <div key={tag.id} className="tag-row">
+          <div key={tag.id} className="tag-pill">
             {editingId === tag.id ? (
               <>
                 <input
