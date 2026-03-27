@@ -935,20 +935,45 @@ body {
   font-size: var(--font-base);
 }
 
-.tags-list {
+.tags-grid {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
-.tag-row {
-  display: flex;
+.tag-pill {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle);
+  color: var(--color-text);
+  font-size: var(--font-sm);
+  white-space: nowrap;
+}
+
+.tag-pill input {
+  flex: 1;
+  min-width: 96px;
+  padding: 0;
+  border: none;
+  border-radius: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-sm);
+}
+
+.tag-pill input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+}
+
+.tag-name {
+  flex: none;
+  font-weight: 600;
 }
 
 .tag-row input {
