@@ -746,7 +746,7 @@ body {
 }
 
 /* ============================================================
-   TAGS
+   TAGS ON SUMMARY PAGE
    ============================================================ */
 
 .tag-selector {
@@ -761,7 +761,7 @@ body {
   border-radius: var(--radius-full);
   font-size: var(--font-xs);
   font-weight: 600;
-  background: var(--color-canvas);
+  background: var(--color-surface);
   color: var(--color-text-muted);
   border: var(--border-width) solid var(--color-border);
   cursor: pointer;
@@ -916,7 +916,9 @@ body {
   margin-top: var(--space-5);
 }
 
-/* Tags Page */
+/* ============================================================
+   TAGS PAGE
+   ============================================================ */
 
 .tag-create-form {
   display: flex;
@@ -949,7 +951,7 @@ body {
   padding: var(--space-2) var(--space-3);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-full);
-  background: var(--color-accent-subtle);
+  background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--font-sm);
   white-space: nowrap;
@@ -974,6 +976,17 @@ body {
 .tag-name {
   flex: none;
   font-weight: 600;
+}
+
+.tag-pill.clickable {
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.tag-pill.clickable:hover {
+  background: var(--color-accent-subtle);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .tag-row input {
