@@ -13,6 +13,13 @@ const SankeyTooltip = ({ link }: { link: any }) => (
   </div>
 );
 
+const SankeyNodeTooltip = ({ node }: { node: any }) => (
+  <div className="sankey-tooltip">
+    <strong>{node.label}</strong>
+    <div className="sankey-tooltip-value">${node.value.toLocaleString()}</div>
+  </div>
+);
+
 const nivoTheme = {
   text: {
     fill: 'var(--color-text)',
@@ -64,6 +71,7 @@ export default function BudgetDiagram({ data }: Props) {
         labelPadding={16}
         labelTextColor="var(--color-text)"
         linkTooltip={SankeyTooltip}
+        nodeTooltip={SankeyNodeTooltip}
         theme={nivoTheme}
       />
     </div>
