@@ -39,7 +39,7 @@ export default function App() {
                 src="/icon-192.png"
                 alt=""
                 aria-hidden="true"
-                style={{ width: '24px', height: '24px' }}
+                style={{ width: '20px', height: '20px' }}
               />
               <span>Budget Overview</span>
             </div>
