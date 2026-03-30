@@ -35,7 +35,12 @@ export default function App() {
         <div className="app">
           <nav className="nav">
             <div className="nav-brand">
-              <img src="/icon-192.png" alt="" aria-hidden="true" />
+              <img
+                src="/icon-192.png"
+                alt=""
+                aria-hidden="true"
+                style={{ width: '20px', height: '20px' }}
+              />
               <span>Budget Overview</span>
             </div>
             {activeSnapshot && activeSnapshotTitle && (
