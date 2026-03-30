@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
-import { HouseIcon, ListBulletsIcon, ChartBarIcon, TagIcon, BoxArrowDownIcon, WarningCircle } from '@phosphor-icons/react'
+import { HouseIcon, ListBulletsIcon, ChartBarIcon, TagIcon, BoxArrowDownIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import Dashboard from './pages/Dashboard'
 import BudgetItems from './pages/BudgetItems'
 import Summary from './pages/Summary'
@@ -45,7 +45,7 @@ export default function App() {
             </div>
             {activeSnapshot && activeSnapshotTitle && (
               <div className="snapshot-warning-badge" role="status" aria-live="polite">
-                <WarningCircle size={16} /> <span>Snapshot active: {activeSnapshotTitle}</span>
+                <WarningCircleIcon size={16} /> <span>Snapshot active: {activeSnapshotTitle}</span>
               </div>
             )}
             <div className="nav-links">
