@@ -37,25 +37,25 @@ STRUCTURE:
 
 :root {
   /* Surface */
-  --color-canvas:       #f8fafc;
-  --color-surface:      #ffffff;
-  --color-text-inverse: #ffffff;
+  --color-canvas:       initial;
+  --color-surface:      initial;
+  --color-text-inverse: initial;
 
   /* Text */
-  --color-text:         #1e293b;
-  --color-text-muted:   #475569;
+  --color-text:         initial;
+  --color-text-muted:   initial;
 
   /* Border */
-  --color-border:       #e2e8f0;
+  --color-border:       initial;
 
   /* Accent — primary interactive colour */
-  --color-accent:        #1d4ed8;
-  --color-accent-hover:  #1e40af;
-  --color-accent-subtle: #eff6ff;
+  --color-accent:        initial;
+  --color-accent-hover:  initial;
+  --color-accent-subtle: initial;
 
   /* Semantic — financial positive / negative */
-  --color-positive: #15803d;
-  --color-negative: #b91c1c;
+  --color-positive: initial;
+  --color-negative: initial;
 
   /* Spacing — 4px base */
   --space-1:  4px;
@@ -126,25 +126,8 @@ STRUCTURE:
   --transition: 150ms ease;
 }
 
-[data-theme='dark'] {
-  --color-canvas:  #0f172a;
-  --color-surface: #1e293b;
-
-  --color-text:       #f1f5f9;
-  --color-text-muted: #94a3b8;
-
-  --color-border: #334155;
-
-  --color-accent:        #60a5fa;
-  --color-accent-hover:  #3b82f6;
-  --color-accent-subtle: #1e3a5f;
-
-  --color-positive: #4ade80;
-  --color-negative: #f87171;
-
-  --shadow:    0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
+/* Theme values are injected dynamically at runtime via ThemeContext + themeManager.applyTheme().
+   The default values live in :root, and custom themes override these CSS vars. */
 
 /* ============================================================
    BASE
