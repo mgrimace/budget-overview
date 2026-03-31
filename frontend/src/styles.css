@@ -36,26 +36,7 @@ STRUCTURE:
    ============================================================ */
 
 :root {
-  /* Surface */
-  --color-canvas:       var(--color-canvas);
-  --color-surface:      var(--color-surface);
-  --color-text-inverse: var(--color-text-inverse);
-
-  /* Text */
-  --color-text:         var(--color-text);
-  --color-text-muted:   var(--color-text-muted);
-
-  /* Border */
-  --color-border:       var(--color-border);
-
-  /* Accent */
-  --color-accent:        var(--color-accent);
-  --color-accent-hover:  var(--color-accent-hover);
-  --color-accent-subtle: var(--color-accent-subtle);
-
-  /* Semantic */
-  --color-positive: var(--color-positive);
-  --color-negative: var(--color-negative);
+  /* Color tokens are set at runtime by applyTheme() — see src/themes/budgetDefaultTheme.ts for default values */
 
   /* Spacing — 4px base */
   --space-1:  4px;
@@ -209,7 +190,7 @@ body {
 }
 
 .nav-brand img {
-  height: var(--font-2xl);
+  height: var(--font-xl);
   width: auto;
 }
 
@@ -797,7 +778,7 @@ body {
   box-shadow: var(--shadow);
   padding: var(--space-6);
   text-align: center;
-  border: 1px solid var(--color-border);
+  border: var(--border-width) solid var(--color-border);
   transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
 }
 
@@ -969,7 +950,7 @@ body {
 }
 
 .tag-name {
-  flex: none;
+  flex: 1;
   font-weight: 600;
 }
 
@@ -993,11 +974,6 @@ body {
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--font-base);
-}
-
-.tag-name {
-  flex: 1;
-  font-weight: 600;
 }
 
 /* ============================================================
@@ -1047,10 +1023,6 @@ body {
   gap: var(--space-2);
   margin-top: var(--space-3);
   margin-bottom: var(--space-8);
-}
-
-.summary-card.active {
-  border: 2px solid var(--color-accent);
 }
 
 .snapshot-footer-row {
