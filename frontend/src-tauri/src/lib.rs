@@ -58,6 +58,11 @@ pub fn run() {
                     }
                     tokio::time::sleep(std::time::Duration::from_millis(250)).await;
                 }
+                // Navigate to the app only after backend is confirmed ready,
+                // then show — prevents the webview loading a failed connection page.
+                if let Ok(url) = "http://127.0.0.1:3001".parse() {
+                    let _ = window.navigate(url);
+                }
                 let _ = window.show();
             });
 

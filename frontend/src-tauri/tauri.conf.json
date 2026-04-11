@@ -13,7 +13,7 @@
       {
         "label": "main",
         "title": "Budget Overview",
-        "url": "http://127.0.0.1:3001",
+        "url": "about:blank",
         "width": 1280,
         "height": 800,
         "visible": false,
