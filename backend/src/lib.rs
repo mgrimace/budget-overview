@@ -18,6 +18,7 @@ pub async fn start_server(port: u16, db_path: Option<String>, static_dir: Option
     let static_dir = static_dir.unwrap_or_else(|| "../frontend/dist".to_string());
 
     let app = Router::new()
+        .route("/health", get(|| async { "ok" }))
         .route(
             "/api/budget-items",
             get(handlers::list_budget_items).post(handlers::create_budget_item),

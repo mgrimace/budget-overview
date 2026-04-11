@@ -30,7 +30,9 @@ pub fn run() {
                 .path()
                 .resource_dir()
                 .ok()
-                .map(|p| p.join("www").to_string_lossy().into_owned());
+                .map(|p| p.join("www"))
+                .filter(|p| p.is_dir())
+                .map(|p| p.to_string_lossy().into_owned());
 
             // Start backend in a background async task
             tauri::async_runtime::spawn(async move {
@@ -40,9 +42,19 @@ pub fn run() {
             // Show window only after backend is ready (avoid blank flash)
             let window = app.get_webview_window("main").unwrap();
             tauri::async_runtime::spawn(async move {
-                for _ in 0..40 {
-                    if tokio::net::TcpStream::connect("127.0.0.1:3001").await.is_ok() {
-                        break;
+                let client = reqwest::Client::new();
+                for attempt in 1..=30 {
+                    match client
+                        .get("http://127.0.0.1:3001/health")
+                        .send()
+                        .await
+                    {
+                        Ok(resp) if resp.status().is_success() => {
+                            println!("Backend ready after {attempt} attempt(s)");
+                            break;
+                        }
+                        Ok(resp) => println!("Health check attempt {attempt}: HTTP {}", resp.status()),
+                        Err(e) => println!("Health check attempt {attempt}: {e}"),
                     }
                     tokio::time::sleep(std::time::Duration::from_millis(250)).await;
                 }
