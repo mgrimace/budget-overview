@@ -129,7 +129,7 @@ jobs:
 
       - name: Build Tauri Windows app
         working-directory: frontend
-        run: npx @tauri-apps/cli build --bundles nsis,app
+        run: npx @tauri-apps/cli build --bundles nsis
 
       - name: Upload Windows binaries to release
         env:
