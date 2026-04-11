@@ -7,7 +7,7 @@
 I made this to replace my family's Excel spreadsheet. It's a simple monthly budget planner with a clear visual overview of money in and money out, and what's left (or in deficit) afterwards.
 
 > [!NOTE]
-> This is still in active development, please be patient
+> Preliminary Windows `.exe` support added as a beta [release](https://github.com/mgrimace/budget-overview/releases/tag/v1.5.0-beta)!
 
 ## Screenshot
 
