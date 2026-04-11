@@ -92,6 +92,7 @@ jobs:
   tauri-windows-build:
     name: Build Windows Desktop App
     runs-on: windows-latest
+    needs: release
 
     steps:
       - name: Checkout
