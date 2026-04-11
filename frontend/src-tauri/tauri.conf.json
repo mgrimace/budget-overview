@@ -4,8 +4,8 @@
   "identifier": "com.budget.overview",
   "build": {
     "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "",
-    "devUrl": "http://127.0.0.1:3001",
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
     "frontendDist": "../dist"
   },
   "app": {
@@ -13,7 +13,6 @@
       {
         "label": "main",
         "title": "Budget Overview",
-        "url": "about:blank",
         "width": 1280,
         "height": 800,
         "visible": false,
@@ -34,9 +33,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": {
-      "../dist/**/*": "www/"
-    },
     "windows": {
       "nsis": {
         "installMode": "perMachine"

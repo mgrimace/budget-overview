@@ -36,12 +36,14 @@ pub fn run() {
 
             // Start backend in a background async task
             tauri::async_runtime::spawn(async move {
+                println!("Starting backend...");
                 budget_overview_backend::start_server(3001, Some(db_path), static_dir).await;
             });
 
             // Show window only after backend is ready (avoid blank flash)
             let window = app.get_webview_window("main").unwrap();
             tauri::async_runtime::spawn(async move {
+                println!("Waiting for backend...");
                 let client = reqwest::Client::new();
                 for attempt in 1..=30 {
                     match client
@@ -58,11 +60,7 @@ pub fn run() {
                     }
                     tokio::time::sleep(std::time::Duration::from_millis(250)).await;
                 }
-                // Navigate to the app only after backend is confirmed ready,
-                // then show — prevents the webview loading a failed connection page.
-                if let Ok(url) = "http://127.0.0.1:3001".parse() {
-                    let _ = window.navigate(url);
-                }
+                println!("Showing window");
                 let _ = window.show();
             });
 
