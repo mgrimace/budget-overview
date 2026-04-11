@@ -79,8 +79,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Delete any leftover draft for this tag (e.g. from a cancelled/re-tagged run)
+          # so we always start with a clean published release.
+          if gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q true; then
+            gh release delete "$TAG" --yes
+          fi
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG already exists. Skipping creation."
+            echo "Release $TAG already exists and is published. Skipping creation."
           else
             if [[ "$TAG" == *"-"* ]]; then
               gh release create "$TAG" --title "$TAG" --generate-notes --prerelease
