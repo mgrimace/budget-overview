@@ -1,78 +1,12 @@
-mod db;
-mod handlers;
-mod models;
-
-use axum::{
-    routing::{get, put},
-    Router,
-};
-use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::{ServeDir, ServeFile};
-
 #[tokio::main]
 async fn main() {
-    let db_path = std::env::var("DATABASE_PATH").unwrap_or_else(|_| {
-        let dir = std::path::Path::new("data");
-        std::fs::create_dir_all(dir).expect("Failed to create data directory");
-        "data/budget.db".to_string()
-    });
-    let db = db::init_db(Some(&db_path));
-
-    let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "../frontend/dist".to_string());
-
-    let app = Router::new()
-        .route(
-            "/api/budget-items",
-            get(handlers::list_budget_items).post(handlers::create_budget_item),
-        )
-        .route(
-            "/api/budget-items/:id",
-            get(handlers::get_budget_item)
-                .put(handlers::update_budget_item)
-                .delete(handlers::delete_budget_item),
-        )
-        .route(
-            "/api/budget-items/:id/primary-tag",
-            axum::routing::patch(handlers::update_budget_item_primary_tag),
-        )
-        .route(
-            "/api/budget-items/:id/visibility",
-            axum::routing::patch(handlers::update_budget_item_visibility),
-        )
-        .route(
-            "/api/tags",
-            get(handlers::list_tags).post(handlers::create_tag),
-        )
-        .route(
-            "/api/tags/:id",
-            put(handlers::rename_tag).delete(handlers::delete_tag),
-        )
-        .route("/api/cashflow", get(handlers::get_cashflow))
-        .route("/api/upcoming-bills", get(handlers::get_upcoming_bills))
-        .route("/api/snapshots", get(handlers::list_snapshots).post(handlers::create_snapshot))
-        .route("/api/snapshots/:filename", axum::routing::delete(handlers::delete_snapshot).put(handlers::rename_snapshot))
-        .route("/api/snapshots/activate", axum::routing::post(handlers::activate_snapshot))
-        .route("/api/snapshots/reset", axum::routing::post(handlers::reset_snapshot))
-        .route("/api/snapshots/active", get(handlers::get_active_snapshot))
-        .with_state(db)
-        .fallback_service(
-            ServeDir::new(&static_dir)
-                .not_found_service(ServeFile::new(format!("{}/index.html", static_dir))),
-        )
-        .layer(
-            CorsLayer::new()
-                .allow_origin(Any)
-                .allow_methods(Any)
-                .allow_headers(Any),
-        );
-
+    let db_path = std::env::var("DATABASE_PATH").ok();
+    let static_dir = std::env::var("STATIC_DIR").ok();
     let port: u16 = std::env::var("PORT")
         .ok()
         .and_then(|p| p.parse().ok())
-        .unwrap_or(3001);
-    let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
-    println!("Server running on http://{}", addr);
+        .unwrap_or(budget_overview_backend::DEFAULT_PORT);
 
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    budget_overview_backend::start_server(port, db_path, static_dir).await;
 }
+

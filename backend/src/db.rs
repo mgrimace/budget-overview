@@ -3,11 +3,11 @@ use std::{fs, path::{Path, PathBuf}, sync::Arc};
 use tokio::sync::Mutex;
 
 pub const DEFAULT_DB_PATH: &str = "data/budget.db";
-pub const SNAPSHOT_DIR: &str = "data/snapshots";
 
 pub struct DbState {
     active_db_path: Mutex<PathBuf>,
     default_db_path: PathBuf,
+    pub snapshot_dir: PathBuf,
 }
 
 pub type Db = Arc<DbState>;
@@ -90,20 +90,23 @@ fn initialize_schema(conn: &Connection) {
     .ok();
 }
 
-pub fn init_db(path: Option<&str>) -> Db {
-    let db_path = path.unwrap_or(DEFAULT_DB_PATH);
-    let db_dir = Path::new(db_path).parent().unwrap_or_else(|| Path::new("data"));
+pub fn init_db(db_path: &str) -> Db {
+    let db_dir = Path::new(db_path).parent().unwrap_or_else(|| Path::new("."));
     fs::create_dir_all(db_dir).expect("Failed to create data directory");
-    fs::create_dir_all(SNAPSHOT_DIR).expect("Failed to create snapshots directory");
+
+    let snapshot_dir = db_dir.join("snapshots");
+    fs::create_dir_all(&snapshot_dir).expect("Failed to create snapshots directory");
 
     let conn = Connection::open(db_path).expect("Failed to open database");
     initialize_schema(&conn);
 
     let default_db_path = fs::canonicalize(db_path).unwrap_or_else(|_| PathBuf::from(db_path));
+    let snapshot_dir = fs::canonicalize(&snapshot_dir).unwrap_or(snapshot_dir);
 
     Arc::new(DbState {
         active_db_path: Mutex::new(default_db_path.clone()),
         default_db_path,
+        snapshot_dir,
     })
 }
 

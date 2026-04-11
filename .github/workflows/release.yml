@@ -37,7 +37,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Derive image name and tag from the pushed Git tag
+      # Derive image name, version tag, and channel tags from the pushed Git tag.
+      # Stable (no dash): tags latest + version.
+      # Pre-release (contains dash): tags channel (beta/alpha) + version only.
       - name: Prepare image metadata
         id: meta
         shell: bash
@@ -48,7 +50,17 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
-      # Build and push multi-architecture image with both latest and version tags
+          if [[ "$TAG" != *"-"* ]]; then
+            # Stable release
+            echo "docker_tags=${IMAGE}:latest,${IMAGE}:${TAG}" >> "$GITHUB_OUTPUT"
+          elif [[ "$TAG" == *"alpha"* ]]; then
+            echo "docker_tags=${IMAGE}:alpha,${IMAGE}:${TAG}" >> "$GITHUB_OUTPUT"
+          else
+            # beta or any other pre-release suffix
+            echo "docker_tags=${IMAGE}:beta,${IMAGE}:${TAG}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Build and push multi-architecture image
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
         with:
@@ -56,11 +68,10 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ${{ steps.meta.outputs.image }}:latest
-            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+          tags: ${{ steps.meta.outputs.docker_tags }}
 
-      # Create a GitHub Release from the pushed tag and auto-generate notes
+      # Create a GitHub Release from the pushed tag and auto-generate notes.
+      # Pre-release tags (containing "-") are flagged as pre-release in GitHub.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,5 +82,68 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists. Skipping creation."
           else
-            gh release create "$TAG" --title "$TAG" --generate-notes
+            if [[ "$TAG" == *"-"* ]]; then
+              gh release create "$TAG" --title "$TAG" --generate-notes --prerelease
+            else
+              gh release create "$TAG" --title "$TAG" --generate-notes
+            fi
           fi
+
+  tauri-windows-build:
+    name: Build Windows Desktop App
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            frontend/src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('frontend/src-tauri/Cargo.lock', 'backend/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Regenerate Tauri icons
+        working-directory: frontend
+        run: npx @tauri-apps/cli icon public/icon-192.png
+
+      - name: Build Tauri Windows app
+        working-directory: frontend
+        run: npx @tauri-apps/cli build --bundles nsis,app
+
+      - name: Upload Windows binaries to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # NSIS installer
+          gh release upload "$TAG" \
+            frontend/src-tauri/target/release/bundle/nsis/*.exe \
+            --clobber
+          # Portable executable (rename for clarity)
+          cp frontend/src-tauri/target/release/*.exe BudgetOverview-portable.exe
+          gh release upload "$TAG" \
+            BudgetOverview-portable.exe \
+            --clobber
