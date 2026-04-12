@@ -65,7 +65,8 @@ export default function BudgetDiagram({ data }: Props) {
         linkOpacity={0.4}
         linkHoverOpacity={0.7}
         linkContract={3}
-        enableLinkGradient
+        enableLinkGradient={true}
+        linkBlendMode="normal"
         labelPosition="outside"
         labelOrientation="horizontal"
         labelPadding={16}
