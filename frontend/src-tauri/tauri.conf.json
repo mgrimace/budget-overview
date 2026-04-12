@@ -1,6 +1,6 @@
 {
   "productName": "Budget Overview",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "identifier": "com.budget.overview",
   "build": {
     "beforeBuildCommand": "npm run build",

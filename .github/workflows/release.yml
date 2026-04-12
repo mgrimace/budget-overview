@@ -103,6 +103,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Derive the numeric version from the git tag (e.g. v1.5.2-beta → 1.5.2)
+      # and write it into tauri.conf.json so the installer filename matches the tag.
+      - name: Sync Tauri version from git tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"   # strip leading 'v'
+          VERSION="${VERSION%%-*}"          # strip pre-release suffix (e.g. -beta)
+          jq --arg v "$VERSION" '.version = $v' frontend/src-tauri/tauri.conf.json > tmp.json
+          mv tmp.json frontend/src-tauri/tauri.conf.json
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
