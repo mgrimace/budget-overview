@@ -592,7 +592,7 @@ pub async fn create_snapshot(
     } else {
         format!("{}.db", timestamp)
     };
-    let snapshot_dir = PathBuf::from(crate::db::SNAPSHOT_DIR);
+    let snapshot_dir = db.snapshot_dir.clone();
     let target = snapshot_dir.join(&file_name);
 
     fs::create_dir_all(&snapshot_dir).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -613,8 +613,8 @@ pub async fn create_snapshot(
     }))
 }
 
-pub async fn list_snapshots(State(_): State<Db>) -> Result<Json<Vec<SnapshotInfo>>, StatusCode> {
-    let mut entries = fs::read_dir(crate::db::SNAPSHOT_DIR)
+pub async fn list_snapshots(State(db): State<Db>) -> Result<Json<Vec<SnapshotInfo>>, StatusCode> {
+    let mut entries = fs::read_dir(&db.snapshot_dir)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .filter_map(Result::ok)
         .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("db"))
@@ -657,7 +657,7 @@ pub async fn activate_snapshot(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    let candidate = PathBuf::from(crate::db::SNAPSHOT_DIR).join(&input.filename);
+    let candidate = db.snapshot_dir.join(&input.filename);
     if !candidate.exists() || !candidate.is_file() {
         return Err(StatusCode::NOT_FOUND);
     }
@@ -680,16 +680,15 @@ pub async fn reset_snapshot(State(db): State<Db>) -> Result<Json<ActiveSnapshot>
     }))
 }
 
-fn snapshot_path(filename: &str) -> Option<PathBuf> {
+fn snapshot_path(snapshot_dir: &std::path::Path, filename: &str) -> Option<PathBuf> {
     if filename.contains('/') || filename.contains('\\') {
         return None;
     }
-    let path = PathBuf::from(crate::db::SNAPSHOT_DIR).join(filename);
-    Some(path)
+    Some(snapshot_dir.join(filename))
 }
 
 pub async fn delete_snapshot(State(db): State<Db>, Path(filename): Path<String>) -> StatusCode {
-    let path = match snapshot_path(&filename) {
+    let path = match snapshot_path(&db.snapshot_dir, &filename) {
         Some(p) => p,
         None => return StatusCode::BAD_REQUEST,
     };
@@ -711,11 +710,11 @@ pub async fn delete_snapshot(State(db): State<Db>, Path(filename): Path<String>)
 }
 
 pub async fn rename_snapshot(
-    State(_db): State<Db>,
+    State(db): State<Db>,
     Path(filename): Path<String>,
     Json(input): Json<RenameSnapshot>,
 ) -> Result<Json<SnapshotInfo>, StatusCode> {
-    let src = snapshot_path(&filename).ok_or(StatusCode::BAD_REQUEST)?;
+    let src = snapshot_path(&db.snapshot_dir, &filename).ok_or(StatusCode::BAD_REQUEST)?;
     if !src.exists() || !src.is_file() {
         return Err(StatusCode::NOT_FOUND);
     }
@@ -737,7 +736,7 @@ pub async fn rename_snapshot(
         format!("{}-{}.db", timestamp, sanitized)
     };
 
-    let dst = snapshot_path(&newname).ok_or(StatusCode::BAD_REQUEST)?;
+    let dst = snapshot_path(&db.snapshot_dir, &newname).ok_or(StatusCode::BAD_REQUEST)?;
     if dst.exists() {
         return Err(StatusCode::CONFLICT);
     }

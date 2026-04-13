@@ -1,6 +1,6 @@
 import type { BudgetItem, CreateBudgetItem, Tag, SankeyData, UpcomingBill, SnapshotInfo, ActiveSnapshot } from './types';
 
-const API = '/api';
+const API = 'http://127.0.0.1:3001/api';
 
 export async function fetchBudgetItems(): Promise<BudgetItem[]> {
   const res = await fetch(`${API}/budget-items`);
