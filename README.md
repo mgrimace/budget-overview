@@ -52,8 +52,8 @@ The project is intentionally simple, and it is not designed for enterprise use.
 - Download the installer `.exe` from the latest [release](https://github.com/mgrimace/budget-overview/releases/latest)
 - Run the installer and launch the app from your Start Menu
 
-  > [!TIP]
-  > Data is stored automatically in your local AppData folder
+> [!TIP]
+> Data is stored automatically in your local AppData folder
 
 ### Docker
 
@@ -77,8 +77,8 @@ The project is intentionally simple, and it is not designed for enterprise use.
   ```
 - Open: [http://localhost:3001](http://localhost:3001). 
 
-  > [!TIP]
-  > Data is stored automatically in `./data/budget.db`.
+> [!TIP]
+> Data is stored automatically in `./data/budget.db`.
 
 ## API Endpoints
 
