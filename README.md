@@ -6,9 +6,6 @@
 
 I made this to replace my family's Excel spreadsheet. It's a simple monthly budget planner with a clear visual overview of money in and money out, and what's left (or in deficit) afterwards.
 
-> [!NOTE]
-> This is still in active development, please be patient
-
 ## Screenshot
 
 | Light mode | Dark mode |
@@ -16,7 +13,7 @@ I made this to replace my family's Excel spreadsheet. It's a simple monthly budg
 | ![Light mode screenshot](./docs/screenshot-light.png) | ![Dark mode screenshot](./docs/screenshot-dark.png) |
 
 > [!TIP]
-> Theme support added as of v0.9.5, with Nord, Everforest, Gruvbox, and more!
+> Includes themes: Nord, Everforest, Gruvbox, and more!
 
 ## Features
 
@@ -27,10 +24,11 @@ I made this to replace my family's Excel spreadsheet. It's a simple monthly budg
 - **Upcoming bills** — sidebar showing what's due this month in date order
 - **Self-hosted** — Run it yourself, your financial data is yours
 - **Dark mode** — full light and dark theme
+- **Custom Themes** - Gruvbox, Everforest, Nord, and more 
 - **PWA** — installable on desktop and mobile, works offline
 
 > [!NOTE]
-> I built this with WCAG 2.2 AA in mind, though there's still plenty of work to do for accessibility.
+> I built this with WCAG 2.2 AA in mind, and there's still plenty of work to do for accessibility. 
 
 ## What it's not
 
@@ -46,30 +44,41 @@ The project is intentionally simple, and it is not designed for enterprise use.
 - **Visualisation** — @nivo/sankey
 - **Icons** — Phosphor React
 - **Font** — Atkinson Hyperlegible
+- **Desktop** — Tauri
 
 ## Quick Start
 
-Create a `docker-compose.yml`:
-```yaml
-services:
-  app:
-    container_name: budget-overview
-    image: ghcr.io/mgrimace/budget-overview:latest
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./data:/app/data
-    environment:
-      DATABASE_PATH: /app/data/budget.db
-    restart: unless-stopped
-```
+### Windows
+- Download the installer `.exe` from the latest [release](https://github.com/mgrimace/budget-overview/releases/latest)
+- Run the installer and launch the app from your Start Menu
 
-Then run:
-```bash
-docker compose up -d
-```
+> [!TIP]
+> > Data is stored automatically in your local AppData folder
 
-Open `http://localhost:3001`. Data persists to `./data/budget.db`.
+### Docker
+
+- Create a `docker-compose.yml`:
+  ```yaml
+  services:
+    app:
+      container_name: budget-overview
+      image: ghcr.io/mgrimace/budget-overview:latest
+      ports:
+        - "3001:3001"
+      volumes:
+        - ./data:/app/data
+      environment:
+        DATABASE_PATH: /app/data/budget.db
+      restart: unless-stopped
+  ```
+- Then run:
+  ```bash
+  docker compose up -d
+  ```
+- Open: [http://localhost:3001](http://localhost:3001). 
+
+> [!TIP]
+> Data is stored automatically in `./data/budget.db`.
 
 ## API Endpoints
 
