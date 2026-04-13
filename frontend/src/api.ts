@@ -1,6 +1,7 @@
 import type { BudgetItem, CreateBudgetItem, Tag, SankeyData, UpcomingBill, SnapshotInfo, ActiveSnapshot } from './types';
 
-const API = 'http://127.0.0.1:3001/api';
+const isTauri = typeof window !== 'undefined' && '__TAURI__' in window;
+const API = isTauri ? 'http://127.0.0.1:3001/api' : '/api';
 
 export async function fetchBudgetItems(): Promise<BudgetItem[]> {
   const res = await fetch(`${API}/budget-items`);
