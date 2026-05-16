@@ -470,6 +470,10 @@ body {
   min-width: 0;
 }
 
+.dashboard-controls {
+  margin-bottom: var(--space-4);
+}
+
 .sankey-container {
   height: var(--chart-height);
   background: var(--color-surface);
@@ -697,15 +701,16 @@ body {
 }
 
 .item-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  position: relative;
+  padding-right: var(--amounts-min);
   margin-bottom: var(--space-2);
 }
 
 .item-name {
   font-weight: 700;
   font-size: var(--font-lg);
+  word-break: break-word;
+  padding-right: var(--space-3);
 }
 
 .item-amount {
@@ -721,12 +726,44 @@ body {
   color: var(--color-negative);
 }
 
+.item-amount-stack {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.item-amount-yearly {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.item-amount-yearly.income {
+  color: var(--color-positive);
+}
+
+.item-amount-yearly.expense {
+  color: var(--color-negative);
+}
+
 .item-card-meta {
   display: flex;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
   font-size: var(--font-sm);
   color: var(--color-text-muted);
   margin-bottom: var(--space-2);
+}
+
+.item-card-meta-top {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 .item-frequency {

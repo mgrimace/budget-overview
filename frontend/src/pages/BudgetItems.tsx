@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchBudgetItems, deleteBudgetItem, updateBudgetItemPrimaryTag, updateItemVisibility } from '../api';
+import { getYearlyAmount } from '../utils';
 import type { BudgetItem } from '../types';
 import BudgetItemForm from '../components/BudgetItemForm';
 import { EyeIcon, EyeSlashIcon, PlusIcon, TrashIcon, PencilSimpleIcon, FunnelSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
@@ -123,13 +124,20 @@ export default function BudgetItems() {
           <div key={item.id} className={`item-card ${item.item_type} ${item.visible ? '' : 'item-card-hidden'}`}>
             <div className="item-card-header">
               <span className="item-name">{item.name}</span>
-              <span className={`item-amount ${item.item_type}`}>
-                {item.item_type === 'income' ? '+' : '-'}${item.monthly_amount.toFixed(2)}/mo
-              </span>
+              <div className="item-amount-stack">
+                <span className={`item-amount ${item.item_type}`}>
+                  {item.item_type === 'income' ? '+' : '-'}${item.monthly_amount.toFixed(2)}/mo
+                </span>
+                <span className={`item-amount-yearly ${item.item_type}`}>
+                  ${getYearlyAmount(item).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/yr
+                </span>
+              </div>
             </div>
             <div className="item-card-meta">
-              <span className="item-frequency">{item.frequency}</span>
-              {item.day_of_month && <span>Day {item.day_of_month}</span>}
+              <div className="item-card-meta-top">
+                <span className="item-frequency">{item.frequency}</span>
+                {item.day_of_month && <span>Day {item.day_of_month}</span>}
+              </div>
             </div>
             {item.tags.length > 0 && (
               <div className="item-tags">
