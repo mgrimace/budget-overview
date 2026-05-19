@@ -6,7 +6,7 @@ export const nordTheme: ThemeDefinition = {
   palettes: {
     light: {
       canvas:       '#ECEFF4',
-      surface:      '#E5E9F0',
+      surface:      '#D8DEE9',
       textInverse:  '#ECEFF4',
       text:         '#2E3440',
       textMuted:    '#4C566A',
@@ -14,12 +14,12 @@ export const nordTheme: ThemeDefinition = {
       accent:       '#5E81AC',
       accentHover:  '#4C6E96',
       accentSubtle: '#D8E8F2',
-      positive:     '#A3BE8C',
+      positive:     '#4d7a3e',
       negative:     '#BF616A',
     },
     dark: {
       canvas:       '#2E3440',
-      surface:      '#3B4252',
+      surface:      '#434C5E',
       textInverse:  '#2E3440',
       text:         '#ECEFF4',
       textMuted:    '#D8DEE9',

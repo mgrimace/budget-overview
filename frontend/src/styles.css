@@ -77,7 +77,7 @@ STRUCTURE:
   --checkmark-size: 14px;
 
   /* Preview Boxes */
-  --preview-width: 28px;
+  --preview-width: 42px;
   --preview-height: 20px;
   --preview-dot-size: 8px;
 
@@ -1206,12 +1206,13 @@ body {
 .theme-preview-box {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: var(--preview-width);
+  justify-content: space-between;
+  width: 42px;
   height: var(--preview-height);
   border-radius: var(--radius-xs);
   border: var(--border-width) solid var(--preview-border, var(--color-border));
   background: var(--preview-surface, var(--color-surface));
+  padding: 0 var(--space-1);
 }
 
 .theme-preview-dot {
@@ -1219,6 +1220,14 @@ body {
   height: var(--preview-dot-size);
   border-radius: 50%;
   background: var(--preview-accent, var(--color-accent));
+}
+
+.theme-preview-dot--positive {
+  background: var(--preview-positive, var(--color-positive));
+}
+
+.theme-preview-dot--negative {
+  background: var(--preview-negative, var(--color-negative));
 }
 
 /* ============================================================

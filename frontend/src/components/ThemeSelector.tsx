@@ -14,10 +14,14 @@ function ThemePreview({ theme, mode }: { theme: ThemeDefinition; mode: 'light' |
         '--preview-border': palette.border,
         '--preview-surface': palette.surface,
         '--preview-accent': palette.accent,
+        '--preview-positive': palette.positive,
+        '--preview-negative': palette.negative,
       } as React.CSSProperties}
     >
       <span className="theme-preview-box">
-        <span className="theme-preview-dot" />
+        <span className="theme-preview-dot theme-preview-dot--accent" />
+        <span className="theme-preview-dot theme-preview-dot--positive" />
+        <span className="theme-preview-dot theme-preview-dot--negative" />
       </span>
     </span>
   )
