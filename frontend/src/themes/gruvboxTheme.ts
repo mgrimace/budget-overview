@@ -6,7 +6,7 @@ export const gruvboxTheme: ThemeDefinition = {
   palettes: {
     light: {
       canvas:       '#fbf1c7',
-      surface:      '#f2e5bc',
+      surface:      '#ebdbb2',
       textInverse:  '#fbf1c7',
       text:         '#3c3836',
       textMuted:    '#665c54',
@@ -14,7 +14,7 @@ export const gruvboxTheme: ThemeDefinition = {
       accent:       '#458588',
       accentHover:  '#367374',
       accentSubtle: '#d5e8e8',
-      positive:     '#98971a',
+      positive:     '#79740e',
       negative:     '#cc241d',
     },
     dark: {
