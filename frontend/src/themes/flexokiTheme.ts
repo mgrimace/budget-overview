@@ -6,8 +6,8 @@ export const flexokiTheme: ThemeDefinition = {
   palettes: {
     light: {
       canvas: '#FFFCF0',
-      surface: '#F2F0E5',
-      surfaceAlt: '#E6E4D9',
+      surface: '#E6E4D9',
+      surfaceAlt: '#F2F0E5',
       hover: '#CECDC3',
       text: '#100F0F',
       textMuted: '#6F6E69',
@@ -35,7 +35,7 @@ export const flexokiTheme: ThemeDefinition = {
       surface: '#1C1B1A',
       surfaceAlt: '#282726',
       hover: '#403E3C',
-      text: '#FFFCF0',
+      text: '#CECDC3',
       textMuted: '#878580',
       textInverse: '#100F0F',
       border: '#343331',
