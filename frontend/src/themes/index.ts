@@ -1,45 +1,48 @@
 import { budgetDefaultTheme } from './budgetDefaultTheme'
-import { nordTheme } from './nordTheme'
 import { catppuccinTheme } from './catppuccinTheme'
-import { everforestTheme } from './everforestTheme'
-import { gruvboxTheme } from './gruvboxTheme'
 import { draculaTheme } from './draculaTheme'
+import { everforestTheme } from './everforestTheme'
+import {flexokiTheme} from './flexokiTheme'
+import { gruvboxTheme } from './gruvboxTheme'
 import { kanagawaTheme } from './kanagawaTheme'
 import { kanagawaWaveTheme } from './kanagawaWaveTheme'
 import { moondustTheme } from './moondustTheme'
+import { nordTheme } from './nordTheme'
 import { rosePineTheme } from './rosePineTheme'
-import { solarizedTheme } from './solarizedTheme'
 import { scienceTheme } from './scienceTheme'
+import { solarizedTheme } from './solarizedTheme'
 import { tokyoNightTheme } from './tokyoNightTheme'
-
-export {
-  budgetDefaultTheme,
-  nordTheme,
-  catppuccinTheme,
-  everforestTheme,
-  gruvboxTheme,
-  draculaTheme,
-  kanagawaTheme,
-  kanagawaWaveTheme,
-  moondustTheme,
-  rosePineTheme,
-  solarizedTheme,
-  scienceTheme,
-  tokyoNightTheme,
-}
 
 export const themes = [
   budgetDefaultTheme,
-  nordTheme,
   catppuccinTheme,
-  everforestTheme,
-  gruvboxTheme,
   draculaTheme,
+  everforestTheme,
+  flexokiTheme,
+  gruvboxTheme,
   kanagawaTheme,
   kanagawaWaveTheme,
   moondustTheme,
+  nordTheme,
   rosePineTheme,
-  solarizedTheme,
   scienceTheme,
+  solarizedTheme,
   tokyoNightTheme,
 ]
+
+export {
+  budgetDefaultTheme,
+  catppuccinTheme,
+  draculaTheme,
+  everforestTheme,
+  flexokiTheme,
+  gruvboxTheme,
+  kanagawaTheme,
+  kanagawaWaveTheme,
+  moondustTheme,
+  nordTheme,
+  rosePineTheme,
+  scienceTheme,
+  solarizedTheme,
+  tokyoNightTheme,
+}

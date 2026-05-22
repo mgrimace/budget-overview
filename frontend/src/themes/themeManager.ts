@@ -1,5 +1,7 @@
 import type { ThemeDefinition, ThemeMode } from './types'
 
+// Budget app: maps unified palette tokens to budget CSS vars.
+// Energy tokens are present in the palette but not mapped here — they are todo-only.
 const tokenToCssVarMap: Record<string, string[]> = {
   canvas:       ['--color-canvas'],
   surface:      ['--color-surface'],
